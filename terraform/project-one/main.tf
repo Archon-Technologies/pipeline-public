@@ -1,3 +1,14 @@
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "4.25.0"
+    }
+  }
+  # configured via backend.conf
+  backend "azurerm" {}
+}
+
 variable "subscription" {
   description = "The Azure subscription ID to provision with"
   type        = string
