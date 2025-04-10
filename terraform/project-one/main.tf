@@ -16,9 +16,8 @@ variable "subscription" {
 
 provider "azurerm" {
   features {}
-  resource_provider_registrations = "none"
-  subscription_id                 = var.subscription
-  alias                           = "root"
+  subscription_id = var.subscription
+  alias           = "root"
 }
 
 resource "azurerm_subscription" "test-subscription" {
@@ -30,7 +29,8 @@ resource "azurerm_subscription" "test-subscription" {
 
 provider "azurerm" {
   features {}
-  subscription_id = azurerm_subscription.test-subscription.subscription_id
+  resource_provider_registrations = "none"
+  subscription_id                 = azurerm_subscription.test-subscription.subscription_id
 }
 
 resource "azurerm_resource_group" "test-rg" {
