@@ -41,8 +41,19 @@ variable "management_group_id" {
 
 provider "azurerm" {
   features {}
-  resource_provider_registrations = "none"
-  subscription_id                 = "62204af3-1be7-4e57-bfa2-25a70219f703"
+  resource_provider_registrations = [
+    "Microsoft.Authorization",
+    "Microsoft.Compute",
+    "Microsoft.CostManagement",
+    "Microsoft.ManagedIdentity",
+    "Microsoft.MarketplaceOrdering",
+    "Microsoft.Network",
+    "Microsoft.Resources",
+    "Microsoft.Storage",
+    "Microsoft.ContainerService",
+    "Microsoft.DBforPostgreSQL"
+  ]
+  subscription_id = "62204af3-1be7-4e57-bfa2-25a70219f703"
 }
 
 resource "azurerm_resource_group" "test-rg" {
