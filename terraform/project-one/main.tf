@@ -1,22 +1,50 @@
-terraform {
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "4.25.0"
-    }
-  }
-  # configured via backend.conf
-  backend "azurerm" {}
-}
-
 variable "subscription" {
-  description = "The Azure subscription ID to provision with"
+  description = "The Azure root subscription ID to provision with (usually Shared Services)"
   type        = string
 }
 
 variable "management_group_id" {
   description = "The management group ID to associate the subscription with"
   type        = string
+}
+
+terraform {
+  required_providers {
+    azurerm = {
+      source = "hashicorp/azurerm"
+    }
+
+    random = {
+      source = "hashicorp/random"
+    }
+
+    azuread = {
+      source = "hashicorp/azuread"
+    }
+  }
+  # configured via backend.conf
+  backend "azurerm" {}
+}
+
+provider "random" {}
+provider "azuread" {}
+data "azurerm_client_config" "current" {}
+
+variable "location" {
+  description = "The location of the resources"
+  type        = string
+  default     = "westus3"
+}
+
+data "terraform_remote_state" "shared_services" {
+  backend = "azurerm"
+  config = {
+    resource_group_name  = "tfstate"
+    storage_account_name = "archontf"
+    container_name       = "tfstate"
+    subscription_id      = var.subscription
+    key                  = "shared-services.tfstate"
+  }
 }
 
 # TODO: FOR WHEN we can autoprovision the subscription
@@ -40,6 +68,14 @@ variable "management_group_id" {
 # }
 
 provider "azurerm" {
+  resource_provider_registrations = "none"
+
+  features {}
+  subscription_id = var.subscription
+  alias           = "shared_services"
+}
+
+provider "azurerm" {
   features {}
   resource_provider_registrations = "none"
 
@@ -56,23 +92,4 @@ provider "azurerm" {
     "Microsoft.DBforPostgreSQL"
   ]
   subscription_id = "62204af3-1be7-4e57-bfa2-25a70219f703"
-}
-
-resource "azurerm_resource_group" "test-rg" {
-  name     = "test-rg"
-  location = "West US 3"
-}
-
-# create a virtual network
-resource "azurerm_virtual_network" "test" {
-  name                = "test-vnet"
-  address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.test-rg.location
-  resource_group_name = azurerm_resource_group.test-rg.name
-}
-
-resource "azurerm_resource_group" "test-rg-2" {
-  name     = "test-rg-2"
-  location = "West US 3"
-
 }
