@@ -16,8 +16,9 @@ variable "subscription" {
 
 provider "azurerm" {
   features {}
-  subscription_id = var.subscription
-  alias           = "root"
+  resource_provider_registrations = "none"
+  subscription_id                 = var.subscription
+  alias                           = "root"
 }
 
 resource "azurerm_subscription" "test-subscription" {
