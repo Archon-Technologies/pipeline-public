@@ -70,3 +70,9 @@ resource "azurerm_virtual_network" "test" {
   location            = azurerm_resource_group.test-rg.location
   resource_group_name = azurerm_resource_group.test-rg.name
 }
+
+resource "azurerm_resource_group" "test-rg-2" {
+  name     = "test-rg-2"
+  location = "West US 3"
+
+}
