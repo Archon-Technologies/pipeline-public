@@ -14,10 +14,10 @@ variable "subscription" {
   type        = string
 }
 
-# variable "management_group_id" {
-#   description = "The management group ID to associate the subscription with"
-#   type        = string
-# }
+variable "management_group_id" {
+  description = "The management group ID to associate the subscription with"
+  type        = string
+}
 
 # TODO: FOR WHEN we can autoprovision the subscription
 # provider "azurerm" {
