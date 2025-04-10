@@ -47,6 +47,7 @@ data "terraform_remote_state" "shared_services" {
     storage_account_name = "archontf"
     container_name       = "tfstate"
     subscription_id      = var.subscription
+    use_azuread_auth     = true
     key                  = "shared-services.tfstate"
   }
 }
@@ -75,7 +76,7 @@ provider "azurerm" {
   resource_provider_registrations = "none"
 
   features {}
-  subscription_id = "/subscriptions/${var.subscription}"
+  subscription_id = var.subscription
   alias           = "shared_services"
 }
 
