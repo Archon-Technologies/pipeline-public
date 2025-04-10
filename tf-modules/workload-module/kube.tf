@@ -14,33 +14,15 @@ resource "random_string" "node_pool_change_id" {
   numeric = false
 }
 
-resource "azurerm_user_assigned_identity" "aks_identity" {
-  name                = "${var.workload_name}-aks-identity"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-}
-
 resource "azurerm_user_assigned_identity" "aks_kubelet_identity" {
   name                = "aks-kubelet-identity"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
 }
 
-resource "azurerm_role_assignment" "aks_rg_contributor" {
-  scope                = azurerm_resource_group.rg.id
-  role_definition_name = "Contributor"
-  principal_id         = azurerm_user_assigned_identity.aks_identity.principal_id
-  principal_type       = "ServicePrincipal"
-}
-
 data "azuread_group" "group" {
   # TAG:CONSTANT_NAME
   display_name = "workloads"
-}
-
-resource "azuread_group_member" "aks" {
-  group_object_id  = data.azuread_group.group.object_id
-  member_object_id = azurerm_user_assigned_identity.aks_identity.principal_id
 }
 
 resource "azuread_group_member" "kubelet" {
@@ -59,10 +41,7 @@ resource "azurerm_kubernetes_cluster" "primary-aks" {
   private_dns_zone_id     = var.kubernetes_dns_zone
 
   identity {
-    type = "UserAssigned"
-    identity_ids = [
-      azurerm_user_assigned_identity.aks_identity.id
-    ]
+    type = "SystemAssigned"
   }
 
   kubelet_identity {
@@ -121,6 +100,11 @@ resource "azurerm_kubernetes_cluster" "primary-aks" {
       max_surge                     = "33%"
     }
   }
+}
+
+resource "azuread_group_member" "aks" {
+  group_object_id  = data.azuread_group.group.object_id
+  member_object_id = azurerm_kubernetes_cluster.primary-aks.identity[0].principal_id
 }
 
 resource "azurerm_kubernetes_cluster_node_pool" "worker-pool" {

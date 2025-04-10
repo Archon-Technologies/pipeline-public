@@ -3,7 +3,7 @@
 module "shared_service_workload" {
   source = "../../tf-modules/workload-module"
 
-  workload_name = "staging-alpha"
+  workload_name = "staging-bravo"
   location      = var.location
   # place this one somewhere not in the 10/8 address space
   address_space  = [cidrsubnet("10.0.0.0/8", 10, 1)]
@@ -34,7 +34,7 @@ module "shared_service_workload" {
 module "postgres" {
   source = "../../tf-modules/postgres-module"
 
-  name     = "staging-alpha-postgres"
+  name     = "staging-bravo-postgres"
   location = module.shared_service_workload.location
 
   private_dns_zone_id = data.terraform_remote_state.shared_services.outputs.postgres_dns_zone
@@ -62,7 +62,7 @@ resource "azurerm_federated_identity_credential" "federated_credential" {
 
 resource "azurerm_network_security_group" "database_nsg" {
   # allow the node space and the workload space to talk to the database
-  name                = "wl-one-database-nsg"
+  name                = "wl-bravo-database-nsg"
   location            = module.shared_service_workload.location
   resource_group_name = module.shared_service_workload.resource_group_name
   security_rule {
