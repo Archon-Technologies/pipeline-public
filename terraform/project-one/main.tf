@@ -41,7 +41,9 @@ variable "management_group_id" {
 
 provider "azurerm" {
   features {}
-  resource_provider_registrations = [
+  resource_provider_registrations = "none"
+
+  resource_providers_to_register = [
     "Microsoft.Authorization",
     "Microsoft.Compute",
     "Microsoft.CostManagement",
