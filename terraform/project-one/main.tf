@@ -75,7 +75,7 @@ provider "azurerm" {
   resource_provider_registrations = "none"
 
   features {}
-  subscription_id = var.subscription
+  subscription_id = "/subscriptions/${var.subscription}"
   alias           = "shared_services"
 }
 
