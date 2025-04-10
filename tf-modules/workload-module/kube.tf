@@ -31,7 +31,7 @@ resource "azuread_group_member" "kubelet" {
 }
 
 resource "azurerm_kubernetes_cluster" "primary-aks" {
-  depends_on          = [var.firewall_dependency, azuread_group_member.aks]
+  depends_on          = [var.firewall_dependency]
   name                = "${var.workload_name}-cluster"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
