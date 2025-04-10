@@ -21,6 +21,10 @@ terraform {
     azuread = {
       source = "hashicorp/azuread"
     }
+
+    cloudinit = {
+      source = "hashicorp/cloudinit"
+    }
   }
   # configured via backend.conf
   backend "azurerm" {}
