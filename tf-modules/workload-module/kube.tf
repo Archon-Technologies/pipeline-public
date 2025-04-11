@@ -26,6 +26,14 @@ resource "azurerm_user_assigned_identity" "aks_kubelet_identity" {
   location            = azurerm_resource_group.rg.location
 }
 
+# Give the AKS identity the ability to assign the kubelet identity
+resource "azurerm_role_assignment" "kubelet_identity_assignment" {
+  principal_id = azurerm_user_assigned_identity.aks_identity.principal_id
+  # This is a custom role from main tf 
+  role_definition_name = "Identity Assigner"
+  scope                = azurerm_user_assigned_identity.aks_kubelet_identity.id
+}
+
 data "azuread_group" "group" {
   # TAG:CONSTANT_NAME
   display_name     = "workloads"
@@ -43,7 +51,7 @@ resource "azuread_group_member" "kubelet" {
 }
 
 resource "azurerm_kubernetes_cluster" "primary-aks" {
-  depends_on          = [var.firewall_dependency, azuread_group_member.aks]
+  depends_on          = [var.firewall_dependency, azuread_group_member.aks, azurerm_role_assignment.kubelet_identity_assignment]
   name                = "${var.workload_name}-cluster"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
