@@ -104,7 +104,7 @@ resource "azurerm_kubernetes_cluster" "primary-aks" {
 
     only_critical_addons_enabled = true
 
-    vm_size              = "Standard_D2_v2"
+    vm_size              = "Standard_D2as_v5"
     auto_scaling_enabled = true
     min_count            = 2
     max_count            = 4
@@ -121,7 +121,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "worker-pool" {
   temporary_name_for_rotation = random_string.node_pool_change_id.result
   kubernetes_cluster_id       = azurerm_kubernetes_cluster.primary-aks.id
   name                        = "workerpool"
-  vm_size                     = "Standard_D2_v2"
+  vm_size                     = "Standard_D2as_v5"
 
   auto_scaling_enabled = true
   min_count            = 2
