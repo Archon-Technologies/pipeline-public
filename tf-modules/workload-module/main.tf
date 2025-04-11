@@ -150,6 +150,12 @@ resource "azurerm_linux_virtual_machine" "wl_jumpbox" {
 }
 
 resource "azurerm_virtual_machine_extension" "entra_auth" {
+  depends_on = [
+    # This connection provides limited internet access to the jumpbox,
+    # which is required for the extension to download the AAD SSH login package
+    azurerm_virtual_hub_connection.wl_connection
+  ]
+
   publisher            = "Microsoft.Azure.ActiveDirectory"
   name                 = "entra-linux-ssh"
   type                 = "AADSSHLoginForLinux"
