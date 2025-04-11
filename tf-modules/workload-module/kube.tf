@@ -14,20 +14,9 @@ resource "random_string" "node_pool_change_id" {
   numeric = false
 }
 
-resource "azurerm_user_assigned_identity" "aks_kubelet_identity" {
-  name                = "aks-kubelet-identity"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-}
-
 data "azuread_group" "group" {
   # TAG:CONSTANT_NAME
   display_name = "workloads"
-}
-
-resource "azuread_group_member" "kubelet" {
-  group_object_id  = data.azuread_group.group.object_id
-  member_object_id = azurerm_user_assigned_identity.aks_kubelet_identity.principal_id
 }
 
 resource "azurerm_kubernetes_cluster" "primary-aks" {
@@ -44,11 +33,13 @@ resource "azurerm_kubernetes_cluster" "primary-aks" {
     type = "SystemAssigned"
   }
 
-  kubelet_identity {
-    client_id                 = azurerm_user_assigned_identity.aks_kubelet_identity.client_id
-    object_id                 = azurerm_user_assigned_identity.aks_kubelet_identity.principal_id
-    user_assigned_identity_id = azurerm_user_assigned_identity.aks_kubelet_identity.id
-  }
+  # kubelet_identity {
+  #   client_id                 = azurerm_user_assigned_identity.aks_kubelet_identity.client_id
+  #   object_id                 = azurerm_user_assigned_identity.aks_kubelet_identity.principal_id
+  #   user_assigned_identity_id = azurerm_user_assigned_identity.aks_kubelet_identity.id
+  # }
+
+  # identity.0.identity_ids,kubelet_identity.0.client_id,kubelet_identity.0.object_id,kubelet_identity.0.user_assigned_identity_id
 
 
   # key_management_service = 
@@ -105,6 +96,11 @@ resource "azurerm_kubernetes_cluster" "primary-aks" {
 resource "azuread_group_member" "aks" {
   group_object_id  = data.azuread_group.group.object_id
   member_object_id = azurerm_kubernetes_cluster.primary-aks.identity[0].principal_id
+}
+
+resource "azuread_group_member" "kubelet" {
+  group_object_id  = data.azuread_group.group.object_id
+  member_object_id = azurerm_kubernetes_cluster.primary-aks.kubelet_identity[0].object_id
 }
 
 resource "azurerm_kubernetes_cluster_node_pool" "worker-pool" {
