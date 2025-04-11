@@ -18,7 +18,7 @@ module "shared_service_workload" {
 
   acr_id = data.terraform_remote_state.shared_services.outputs.acr_id
 
-  zones = [1, 2]
+  zones = [2, 3]
 
   dns_servers = [
     data.terraform_remote_state.shared_services.outputs.firewall_ip
