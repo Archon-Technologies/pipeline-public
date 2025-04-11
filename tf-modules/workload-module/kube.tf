@@ -34,6 +34,13 @@ resource "azurerm_role_assignment" "kubelet_identity_assignment" {
   scope                = azurerm_user_assigned_identity.aks_kubelet_identity.id
 }
 
+# Give the AKS identity its usual permissions
+resource "azurerm_role_assignment" "aks_identity_assignment" {
+  principal_id         = azurerm_user_assigned_identity.aks_identity.principal_id
+  role_definition_name = "AKS Cluster Manager" # another custom role
+  scope                = azurerm_resource_group.rg.id
+}
+
 data "azuread_group" "group" {
   # TAG:CONSTANT_NAME
   display_name     = "workloads"
@@ -51,7 +58,7 @@ resource "azuread_group_member" "kubelet" {
 }
 
 resource "azurerm_kubernetes_cluster" "primary-aks" {
-  depends_on          = [var.firewall_dependency, azuread_group_member.aks, azurerm_role_assignment.kubelet_identity_assignment]
+  depends_on          = [var.firewall_dependency, azuread_group_member.aks, azurerm_role_assignment.kubelet_identity_assignment, azurerm_role_assignment.aks_identity_assignment]
   name                = "${var.workload_name}-cluster"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location

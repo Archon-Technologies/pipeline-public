@@ -94,7 +94,7 @@ resource "azurerm_postgresql_flexible_server_active_directory_administrator" "ad
   resource_group_name = module.shared_service_workload.resource_group_name
   tenant_id           = data.azurerm_client_config.current.tenant_id
   principal_name      = "postgres-admin"
-  principal_type      = "User"
+  principal_type      = "ServicePrincipal"
 }
 
 output "db_identity_client_id" {
