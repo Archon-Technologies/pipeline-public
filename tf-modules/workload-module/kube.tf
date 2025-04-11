@@ -28,7 +28,8 @@ resource "azurerm_user_assigned_identity" "aks_kubelet_identity" {
 
 data "azuread_group" "group" {
   # TAG:CONSTANT_NAME
-  display_name = "workloads"
+  display_name     = "workloads"
+  security_enabled = true
 }
 
 resource "azuread_group_member" "aks" {
