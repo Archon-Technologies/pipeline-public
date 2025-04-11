@@ -6,7 +6,7 @@ module "shared_service_workload" {
   workload_name = "staging-bravo"
   location      = var.location
   # place this one somewhere not in the 10/8 address space
-  address_space  = [cidrsubnet("10.0.0.0/8", 10, 1)]
+  address_space  = [cidrsubnet("10.0.0.0/8", 10, 2)]
   virtual_hub_id = data.terraform_remote_state.shared_services.outputs.virtual_hub_id
 
   ip_group_id = data.terraform_remote_state.shared_services.outputs.ip_group_id
@@ -32,7 +32,9 @@ module "shared_service_workload" {
 }
 
 module "postgres" {
-  source = "../../tf-modules/postgres-module"
+  # Network connectivity needs to be established before the database can be created
+  depends_on = [module.shared_service_workload]
+  source     = "../../tf-modules/postgres-module"
 
   name     = "staging-bravo-postgres"
   location = module.shared_service_workload.location
