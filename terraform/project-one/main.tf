@@ -54,12 +54,14 @@ data "terraform_remote_state" "shared_services" {
 #   alias           = "root"
 # }
 
-# resource "azurerm_subscription" "test-subscription" {
-#   alias             = "test-subscription"
-#   subscription_name = "Deployment Test"
-#   subscription_id   = "62204af3-1be7-4e57-bfa2-25a70219f703"
-#   provider          = azurerm.root
-# }
+locals {
+  local_subscription_id = "4c896e3b-fe32-46a8-a931-0baff63f5a8d"
+}
+
+resource "azurerm_subscription" "bravo" {
+  subscription_name = "Bravo"
+  subscription_id   = local.local_subscription_id
+}
 
 data "azurerm_management_group" "managed_workloads" {
   display_name = "Managed Workloads"
@@ -67,7 +69,7 @@ data "azurerm_management_group" "managed_workloads" {
 
 resource "azurerm_management_group_subscription_association" "add_to_mg" {
   management_group_id = "/providers/Microsoft.Management/managementGroups/${data.azurerm_management_group.managed_workloads.id}"
-  subscription_id     = "/subscriptions/${azurerm_subscription.test-subscription.subscription_id}"
+  subscription_id     = "/subscriptions/${local.local_subscription_id}"
 }
 
 provider "azurerm" {
@@ -94,7 +96,7 @@ provider "azurerm" {
     "Microsoft.ContainerService",
     "Microsoft.DBforPostgreSQL"
   ]
-  subscription_id = "4c896e3b-fe32-46a8-a931-0baff63f5a8d"
+  subscription_id = local.local_subscription_id
 }
 
 provider "azurerm" {
