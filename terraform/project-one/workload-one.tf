@@ -97,7 +97,7 @@ resource "azurerm_postgresql_flexible_server_active_directory_administrator" "ad
 }
 
 output "db_identity_client_id" {
-  value = module.postgres.created_identities.test.client_id
+  value = module.postgres.created_identities.govdash.client_id
 }
 
 output "dns_identity_client_id" {
