@@ -58,20 +58,20 @@ locals {
   local_subscription_id = "4c896e3b-fe32-46a8-a931-0baff63f5a8d"
 }
 
-resource "azurerm_subscription" "bravo" {
-  subscription_name = "Bravo"
-  subscription_id   = local.local_subscription_id
-}
+# resource "azurerm_subscription" "bravo" {
+#   subscription_name = "Bravo"
+#   subscription_id   = local.local_subscription_id
+# }
 
 data "azurerm_management_group" "managed_workloads" {
   display_name = "Managed Workloads"
 }
 
 # Note that this needs to happen first before the provider will have permission to do anything
-resource "azurerm_management_group_subscription_association" "add_to_mg" {
-  management_group_id = data.azurerm_management_group.managed_workloads.id
-  subscription_id     = "/subscriptions/${local.local_subscription_id}"
-}
+# resource "azurerm_management_group_subscription_association" "add_to_mg" {
+#   management_group_id = data.azurerm_management_group.managed_workloads.id
+#   subscription_id     = "/subscriptions/${local.local_subscription_id}"
+# }
 
 provider "azurerm" {
   resource_provider_registrations = "none"
