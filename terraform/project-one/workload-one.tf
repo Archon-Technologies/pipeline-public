@@ -1,12 +1,10 @@
-
-
 module "shared_service_workload" {
   source = "../../tf-modules/workload-module"
 
-  workload_name = "staging-bravo"
+  workload_name = "bravo"
   location      = var.location
   # place this one somewhere not in the 10/8 address space
-  address_space  = [cidrsubnet("10.0.0.0/8", 10, 2)]
+  address_space  = [cidrsubnet("10.0.0.0/8", 10, 1)]
   virtual_hub_id = data.terraform_remote_state.shared_services.outputs.virtual_hub_id
 
   ip_group_id = data.terraform_remote_state.shared_services.outputs.ip_group_id
@@ -25,7 +23,8 @@ module "shared_service_workload" {
   ]
 
   providers = {
-    azurerm.shared_services = azurerm.shared_services
+    azurerm.shared_services = azurerm.shared_services,
+    azurerm.networking      = azurerm.networking
   }
 
   #   firewall_dependency = azurerm_firewall_policy_rule_collection_group.app_policy_rule_collection_group
@@ -36,7 +35,7 @@ module "postgres" {
   depends_on = [module.shared_service_workload]
   source     = "../../tf-modules/postgres-module"
 
-  name     = "staging-bravo-postgres"
+  name     = "bravo-postgres"
   location = module.shared_service_workload.location
 
   private_dns_zone_id = data.terraform_remote_state.shared_services.outputs.postgres_dns_zone
@@ -48,7 +47,7 @@ module "postgres" {
   ]
 
   databases = [
-    "test"
+    "govdash"
   ]
 }
 

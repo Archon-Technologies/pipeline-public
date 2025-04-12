@@ -3,7 +3,7 @@ terraform {
     azurerm = {
       source                = "hashicorp/azurerm"
       version               = "4.25.0"
-      configuration_aliases = [azurerm.shared_services]
+      configuration_aliases = [azurerm.shared_services, azurerm.networking]
     }
 
     random = {

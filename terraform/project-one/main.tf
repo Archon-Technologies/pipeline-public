@@ -3,11 +3,6 @@ variable "subscription" {
   type        = string
 }
 
-variable "management_group_id" {
-  description = "The management group ID to associate the subscription with"
-  type        = string
-}
-
 terraform {
   required_providers {
     azurerm = {
@@ -66,11 +61,14 @@ data "terraform_remote_state" "shared_services" {
 #   provider          = azurerm.root
 # }
 
-# resource "azurerm_management_group_subscription_association" "add_to_mg" {
-#   management_group_id = "/providers/Microsoft.Management/managementGroups/${var.management_group_id}"
-#   subscription_id     = "/subscriptions/${azurerm_subscription.test-subscription.subscription_id}"
-#   provider            = azurerm.root
-# }
+data "azurerm_management_group" "managed_workloads" {
+  display_name = "Managed Workloads"
+}
+
+resource "azurerm_management_group_subscription_association" "add_to_mg" {
+  management_group_id = "/providers/Microsoft.Management/managementGroups/${data.azurerm_management_group.managed_workloads.id}"
+  subscription_id     = "/subscriptions/${azurerm_subscription.test-subscription.subscription_id}"
+}
 
 provider "azurerm" {
   resource_provider_registrations = "none"
@@ -96,5 +94,12 @@ provider "azurerm" {
     "Microsoft.ContainerService",
     "Microsoft.DBforPostgreSQL"
   ]
-  subscription_id = "62204af3-1be7-4e57-bfa2-25a70219f703"
+  subscription_id = "4c896e3b-fe32-46a8-a931-0baff63f5a8d"
+}
+
+provider "azurerm" {
+  features {}
+  subscription_id                 = data.terraform_remote_state.shared_services.outputs.web_dns_zone_subscription_id
+  alias                           = "networking"
+  resource_provider_registrations = "none"
 }

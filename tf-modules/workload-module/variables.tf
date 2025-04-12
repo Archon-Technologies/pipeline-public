@@ -35,6 +35,11 @@ variable "zones" {
   default     = [1, 2]
 }
 
+variable "workload_group_dependency_object_id" {
+  default     = null
+  description = "The dependency for the workload group"
+}
+
 # variable "assc_route_table_id" {
 #   description = "The ID of the route table to associate with the virtual hub connection"
 #   type        = string
@@ -79,6 +84,12 @@ variable "web_dns_zone_name" {
 
 variable "web_dns_zone_rg" {
   description = "The resource group for the public DNS zone"
+}
+
+variable "inbound_ip" {
+  description = "The IP to put in the DNS record for the workload"
+  type        = string
+  default     = ""
 }
 
 variable "acr_id" {

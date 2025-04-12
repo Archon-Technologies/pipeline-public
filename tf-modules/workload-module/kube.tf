@@ -42,8 +42,10 @@ resource "azurerm_role_assignment" "aks_identity_assignment" {
 }
 
 data "azuread_group" "group" {
+  # Datasources don't play nice with depends_on, so this workaround is needed
   # TAG:CONSTANT_NAME
-  display_name     = "workloads"
+  display_name     = var.workload_group_dependency_object_id == null ? null : "workloads"
+  object_id        = var.workload_group_dependency_object_id == null ? var.workload_group_dependency_object_id : null
   security_enabled = true
 }
 

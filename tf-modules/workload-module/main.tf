@@ -39,16 +39,6 @@ resource "azurerm_virtual_hub_connection" "wl_connection" {
   # }
 }
 
-resource "azurerm_public_ip" "workload_pip" {
-  count = var.should_provision_public_ip ? 1 : 0
-
-  name                = "${var.workload_name}-pip-wl"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  sku                 = "Standard"
-  allocation_method   = "Static"
-}
-
 resource "azurerm_network_interface" "wl_jumpbox_nic" {
   name                = "wl-jumpbox-nic"
   location            = azurerm_resource_group.rg.location
@@ -89,7 +79,11 @@ EOF
 
 resource "azurerm_linux_virtual_machine" "wl_jumpbox" {
   depends_on = [
-    azurerm_marketplace_agreement.ubuntu
+    azurerm_marketplace_agreement.ubuntu,
+    # This connection provides limited internet access to the jumpbox,
+    # which is required to STIG the machine automatically
+    azurerm_virtual_hub_connection.wl_connection,
+    var.firewall_dependency
   ]
 
   name                = "${var.workload_name}-jumpbox"
@@ -153,7 +147,8 @@ resource "azurerm_virtual_machine_extension" "entra_auth" {
   depends_on = [
     # This connection provides limited internet access to the jumpbox,
     # which is required for the extension to download the AAD SSH login package
-    azurerm_virtual_hub_connection.wl_connection
+    azurerm_virtual_hub_connection.wl_connection,
+    var.firewall_dependency
   ]
 
   publisher            = "Microsoft.Azure.ActiveDirectory"
