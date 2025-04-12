@@ -67,8 +67,9 @@ data "azurerm_management_group" "managed_workloads" {
   display_name = "Managed Workloads"
 }
 
+# Note that this needs to happen first before the provider will have permission to do anything
 resource "azurerm_management_group_subscription_association" "add_to_mg" {
-  management_group_id = "/providers/Microsoft.Management/managementGroups/${data.azurerm_management_group.managed_workloads.id}"
+  management_group_id = data.azurerm_management_group.managed_workloads.id
   subscription_id     = "/subscriptions/${local.local_subscription_id}"
 }
 
