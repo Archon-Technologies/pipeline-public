@@ -44,7 +44,7 @@ data "terraform_remote_state" "shared_services" {
   backend = "azurerm"
   config = {
     resource_group_name  = "tfstate"
-    storage_account_name = "archontf"
+    storage_account_name = "tfstateajsa"
     container_name       = "tfstate"
     subscription_id      = var.subscription
     use_azuread_auth     = true
