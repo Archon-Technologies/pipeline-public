@@ -14,6 +14,12 @@ variable "location" {
   default     = "West US 3"
 }
 
+variable "profile" {
+  description = "The profile for the workload"
+  type        = string
+  default     = "default"
+}
+
 variable "should_be_autocontrolled" {
   description = "Whether the workload should be controlled by Jenkins"
   type        = bool

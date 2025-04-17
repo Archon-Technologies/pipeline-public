@@ -110,6 +110,7 @@ resource "azurerm_kubernetes_cluster" "primary-aks" {
 
   tags = {
     archon_workload = var.should_be_autocontrolled ? "true" : "false"
+    archon_profile  = var.profile
   }
 
 
