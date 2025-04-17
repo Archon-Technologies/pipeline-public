@@ -77,5 +77,5 @@ resource "azurerm_network_security_group" "database_nsg" {
 resource "azurerm_subnet_network_security_group_association" "database_nsg" {
   count                     = var.workload_object != null ? 1 : 0
   subnet_id                 = azurerm_subnet.database_subnet.id
-  network_security_group_id = azurerm_network_security_group.database_nsg.id
+  network_security_group_id = azurerm_network_security_group.database_nsg[0].id
 }
