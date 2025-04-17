@@ -13,7 +13,7 @@ variable "location" {
 
 variable "workload_object" {
   description = "The workload object to use for the workload"
-  type        = map()
+  type        = object
   default     = null
 }
 
