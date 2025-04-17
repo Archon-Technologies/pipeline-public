@@ -6,6 +6,7 @@ resource "azurerm_storage_blob" "workload_provision_details" {
   storage_account_name   = var.tfstate_storage_account_name
   storage_container_name = var.tfstate_kube_container_name
   type                   = "Block"
+  content_type           = "application/json"
 
   source_content = jsonencode({
     registry    = var.registry_address
