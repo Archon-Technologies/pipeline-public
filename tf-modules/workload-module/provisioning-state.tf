@@ -1,4 +1,6 @@
 resource "azurerm_storage_blob" "workload_provision_details" {
+  provider = azurerm.shared_services
+
   count                  = var.should_be_autocontrolled ? 1 : 0
   name                   = "${var.workload_name}-wl-provision.json"
   storage_account_name   = var.tfstate_storage_account_name
