@@ -103,10 +103,14 @@ releases:
       - image:
           # from quay.io/jetstack/cert-manager-controller
           repository: "{{ .Values.registry }}/jetstack/cert-manager-controller"
+          pullPolicy: Always
+          tag: v1.17.0
       - webhook:
           image:
             # from quay.io/jetstack/cert-manager-webhook
             repository: "{{ .Values.registry }}/jetstack/cert-manager-webhook"
+            pullPolicy: Always
+            tag: v1.17.0
           replicaCount: 2
           podDisruptionBudget:
             enabled: true
@@ -125,6 +129,7 @@ releases:
       - cainjector:
           image:
             repository: "{{ .Values.registry }}/jetstack/cert-manager-cainjector"
+            tag: v1.17.0
             pullPolicy: Always
           replicaCount: 2
           podDisruptionBudget:
@@ -144,6 +149,8 @@ releases:
       - acmesolver:
           image:
             repository: "{{ .Values.registry }}/cert-manager/acmesolver"
+            tag: v1.17.0
+            pullPolicy: Always
       - startupapicheck:
           enabled: false
 
