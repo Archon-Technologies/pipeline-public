@@ -49,42 +49,8 @@ module "postgres" {
   databases = [
     "govdash"
   ]
-}
 
-resource "azurerm_federated_identity_credential" "federated_credential" {
-  for_each            = module.postgres.created_identities
-  name                = "${each.value.name}-credential"
-  resource_group_name = module.shared_service_workload.resource_group_name
-  audience            = ["api://AzureADTokenExchange"]
-  issuer              = module.shared_service_workload.cluster_oidc
-  parent_id           = each.value.id
-  subject             = "system:serviceaccount:default:${each.value.name}"
-}
-
-resource "azurerm_network_security_group" "database_nsg" {
-  # allow the node space and the workload space to talk to the database
-  name                = "wl-bravo-database-nsg"
-  location            = module.shared_service_workload.location
-  resource_group_name = module.shared_service_workload.resource_group_name
-  security_rule {
-    name        = "allow-aks"
-    description = "Allow access to Postgres from the AKS nodes"
-    priority    = 100
-    direction   = "Inbound"
-    source_address_prefixes = [
-      cidrsubnet(module.shared_service_workload.address_space[0], 4, 0),
-    ]
-    destination_address_prefix = "*"
-    source_port_range          = "*"
-    destination_port_range     = "5432"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-  }
-}
-
-resource "azurerm_subnet_network_security_group_association" "database_nsg" {
-  subnet_id                 = module.postgres.subnet_id
-  network_security_group_id = azurerm_network_security_group.database_nsg.id
+  workload_object = module.shared_service_workload
 }
 
 resource "azurerm_postgresql_flexible_server_active_directory_administrator" "ad_admin" {

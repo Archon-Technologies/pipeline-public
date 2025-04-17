@@ -52,3 +52,30 @@ resource "azurerm_postgresql_flexible_server" "wl_pg_server" {
   zone = var.zone
 }
 
+resource "azurerm_network_security_group" "database_nsg" {
+  # allow the node space and the workload space to talk to the database
+  count               = var.workload_object != null ? 1 : 0
+  name                = "${var.name}-database-nsg"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  security_rule {
+    name        = "allow-aks"
+    description = "Allow access to Postgres from the AKS nodes"
+    priority    = 100
+    direction   = "Inbound"
+    source_address_prefixes = [
+      cidrsubnet(var.workload_object.address_space[0], 4, 0),
+    ]
+    destination_address_prefix = "*"
+    source_port_range          = "*"
+    destination_port_range     = "5432"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+  }
+}
+
+resource "azurerm_subnet_network_security_group_association" "database_nsg" {
+  count                     = var.workload_object != null ? 1 : 0
+  subnet_id                 = azurerm_subnet.database_subnet.id
+  network_security_group_id = azurerm_network_security_group.database_nsg.id
+}

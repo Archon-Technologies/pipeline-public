@@ -69,6 +69,8 @@ resource "azurerm_kubernetes_cluster" "primary-aks" {
   dns_prefix              = "${var.workload_name}-aks"
   private_dns_zone_id     = var.kubernetes_dns_zone
 
+  role_based_access_control_enabled = true
+
   identity {
     type = "UserAssigned"
     identity_ids = [

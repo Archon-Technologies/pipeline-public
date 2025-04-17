@@ -11,6 +11,12 @@ variable "location" {
 
 }
 
+variable "workload_object" {
+  description = "The workload object to use for the workload"
+  type        = map()
+  default     = null
+}
+
 variable "resource_group_name" {
   description = "The name of the resource group"
   type        = string

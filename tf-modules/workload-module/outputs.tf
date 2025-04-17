@@ -15,6 +15,10 @@ output "location" {
   value = azurerm_resource_group.rg.location
 }
 
+output "cluster_id" {
+  value = azurerm_kubernetes_cluster.primary-aks.id
+}
+
 output "virtual_network_name" {
   value = azurerm_virtual_network.workload_network.name
 }
@@ -29,6 +33,10 @@ output "address_space" {
 
 output "cluster_oidc" {
   value = azurerm_kubernetes_cluster.primary-aks.oidc_issuer_url
+}
+
+output "aks_identity_principal_id" {
+  value = azurerm_user_assigned_identity.aks_identity.principal_id
 }
 
 output "dns_identity_client_id" {

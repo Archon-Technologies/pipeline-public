@@ -1,0 +1,12 @@
+environments:
+  default:
+    values:
+      - accountName: "staging-alpha"
+      - fqdn: "staging-alpha.archongov.com"
+      - dns:
+          clientId: 8aedc4c8-4f21-4288-897d-2493c8a4b759
+          resourceGroupName: staging-alpha-rg-wl
+          subscriptionId: 48c63683-e562-4077-9b57-783d83cc0447
+---
+bases:
+  - ../common/helmfile.yaml

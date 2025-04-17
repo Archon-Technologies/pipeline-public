@@ -15,3 +15,13 @@ resource "azurerm_user_assigned_identity" "database_user" {
     database = each.value
   }
 }
+
+resource "azurerm_federated_identity_credential" "federated_credential" {
+  for_each            = var.workload_object != null ? azurerm_user_assigned_identity.database_user : {}
+  name                = "${each.value.name}-credential"
+  resource_group_name = module.shared_service_workload.resource_group_name
+  audience            = ["api://AzureADTokenExchange"]
+  issuer              = module.shared_service_workload.cluster_oidc
+  parent_id           = each.value.id
+  subject             = "system:serviceaccount:default:${each.value.name}"
+}
