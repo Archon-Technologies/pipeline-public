@@ -111,7 +111,7 @@ resource "azurerm_kubernetes_cluster" "primary-aks" {
   tags = {
     archon_workload  = var.should_be_autocontrolled ? "true" : "false"
     archon_profile   = var.profile
-    archon_statefile = var.should_be_autocontrolled ? azurerm_storage_blob.workload_provision_details.id : null
+    archon_statefile = var.should_be_autocontrolled ? azurerm_storage_blob.workload_provision_details[0].id : null
   }
 
 
