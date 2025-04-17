@@ -1,0 +1,26 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: cache-class
+  namespace: {{ .Values.agent.namespace }}
+provisioner: file.csi.azure.com 
+allowVolumeExpansion: true
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+parameters:
+  skuName: Premium_LRS
+  protocol: nfs
+  networkEndpointType: privateEndpoint
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jenkins-cache
+  namespace: {{ .Values.agent.namespace }}
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: cache-class
+  resources:
+    requests:
+      storage: 10Gi

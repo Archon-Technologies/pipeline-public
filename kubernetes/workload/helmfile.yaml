@@ -1,12 +1,13 @@
 environments:
   default:
     values:
-      - accountName: "staging-alpha"
-      - fqdn: "staging-alpha.archongov.com"
+      - registry: archonacrutdb.azurecr.io
+      - accountName: "bravo"
+      - fqdn: "bravo.archongov.com"
       - dns:
-          clientId: 8aedc4c8-4f21-4288-897d-2493c8a4b759
-          resourceGroupName: staging-alpha-rg-wl
-          subscriptionId: 48c63683-e562-4077-9b57-783d83cc0447
+          clientId: 98a88731-943e-4064-a3d3-7a259eda90ec
+          resourceGroupName: bravo-rg-wl
+          subscriptionId: 4c896e3b-fe32-46a8-a931-0baff63f5a8d
 ---
 bases:
   - ../common/helmfile.yaml

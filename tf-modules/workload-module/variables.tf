@@ -14,7 +14,7 @@ variable "location" {
   default     = "West US 3"
 }
 
-variable "should_be_jenkins_controlled" {
+variable "should_be_autocontrolled" {
   description = "Whether the workload should be controlled by Jenkins"
   type        = bool
   default     = false

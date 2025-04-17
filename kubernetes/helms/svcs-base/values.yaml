@@ -1,0 +1,9 @@
+fqdn: shared-services.archongov.com
+istio:
+  internetIngressLabel: istio-ingressgateway
+dnsIdentity:
+  clientId: 53bd14f8-5823-42b4-b097-b409774b2e66
+azure:
+  resourceGroupName: shared-services-rg-wl
+  subscriptionId: 7ace3973-3541-4d33-a7de-ad1793783b96
+  environment: AzurePublicCloud

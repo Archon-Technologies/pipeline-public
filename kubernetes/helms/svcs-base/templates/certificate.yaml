@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Values.fqdn | quote }}
+  namespace: istio-system
+spec:
+  secretName: {{ .Values.fqdn | quote }}
+  issuerRef:
+    name: letsencrypt        
+    kind: ClusterIssuer
+  dnsNames:
+    - {{ .Values.fqdn | quote }}
+    - "*.{{ .Values.fqdn }}"

@@ -109,7 +109,7 @@ resource "azurerm_kubernetes_cluster" "primary-aks" {
   oidc_issuer_enabled       = true
 
   tags = {
-    archon_workload = var.should_be_jenkins_controlled ? "true" : "false"
+    archon_workload = var.should_be_autocontrolled ? "true" : "false"
   }
 
 

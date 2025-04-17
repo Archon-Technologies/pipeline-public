@@ -1,0 +1,14 @@
+pullSecret: "pull-secret"
+image: "archonznbbacr.azurecr.io/keycloak/keycloak:latest"
+hostname: "auth.shared-services.archongov.com"
+bootstrapCredentials:
+  username: admin
+  password: lCQeIpab3HxHRg8TdkHIvuVHf6hMuTMa+Qc5HVCcb5M
+httpPort: 8080
+database:
+  url: jdbc:postgresql://shared-services-postgres.postgres.database.azure.com:5432/keycloak?sslmode=require
+istio:
+  gateway: istio-system/remote-service-gw
+azureIdentity:
+  clientId: "0671763e-ca6d-48f2-9c83-16dd5f8212c2"
+  name: shared-services-postgres-keycloak-identity

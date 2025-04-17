@@ -1,0 +1,20 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt
+  namespace: archon-system
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: inquiries@archon.inc
+    privateKeySecretRef:
+      name: letsencrypt
+    solvers:
+    - dns01:
+        azureDNS:
+          hostedZoneName: {{ .Values.fqdn }}
+          resourceGroupName: {{ .Values.azure.resourceGroupName | quote }}
+          subscriptionID: {{ .Values.azure.subscriptionId | quote }}
+          environment: {{ .Values.azure.environment | quote }}
+          managedIdentity:
+            clientID: {{ .Values.dnsIdentity.clientId | quote }}

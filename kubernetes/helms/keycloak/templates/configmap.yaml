@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{.Release.Name}}-keycloak-env-vars
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    app.kubernetes.io/component: keycloak
+data:
+  KC_HTTP_PORT: {{ .Values.httpPort | quote }}
+  KC_HOSTNAME: {{ .Values.hostname | quote }}
+  KC_HTTP_ENABLED: "true"
+  KC_PROXY_HEADERS: "xforwarded"
+  KC_DB_URL: {{ .Values.database.url | quote }}
+  KC_CACHE_TYPE: "ispn"
+  KC_CACHE_STACK: "kubernetes"
+  KC_SPI_DATASTORE_LEGACY_ALLOW_MIGRATE_EXISTING_DATABASE_TO_SNAPSHOT: "true"
+  # JAVA_OPTS_APPEND: "-Djgroups.dns.query={{ .Release.Name }}-keycloak-headless.default.svc.cluster.local"
+  KEYCLOAK_LOG_OUTPUT: "default"
+  KEYCLOAK_LOG_LEVEL: "INFO"

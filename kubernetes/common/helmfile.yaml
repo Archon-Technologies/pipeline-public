@@ -1,0 +1,198 @@
+environments:
+  default:
+    values:
+      - a: "b"
+---
+releases:
+  - name: istio-base
+    version: "1.25.1"
+    namespace: "istio-system"
+    createNamespace: true
+    chart: "../../helms/istio-base"
+    values:
+      - defaultRevision: "default"
+
+  - name: istiod
+    version: "1.25.1"
+    namespace: "istio-system"
+    chart: "../../helms/istiod"
+    needs:
+      - istio-base
+    values:
+      - autoscaleMin: 2
+      - replicaCount: 2
+      - image: "{{ .Values.registry }}/istio/pilot:1.25.1"
+      - pilot:
+          env:
+            ENABLE_NATIVE_SIDECARS: "true"
+      - global:
+          proxy:
+            image: "{{ .Values.registry }}/istio/proxyv2:1.25.1"
+          proxy_init:
+            image: "{{ .Values.registry }}/istio/proxyv2:1.25.1"
+      - sidecarInjectorWebhook:
+          enableNamespacesByDefault: true
+      - meshConfig:
+          outboundTrafficPolicy:
+            mode: "REGISTRY_ONLY"
+          defaultConfig:
+            proxyMetadata:
+              ISTIO_META_DNS_CAPTURE: "true"
+            runtimeValues:
+              "overload.global_downstream_max_connections": "100000"
+      - topologySpreadConstraints:
+          - maxSkew: 1
+            topologyKey: "kubernetes.io/hostname"
+            whenUnsatisfiable: ScheduleAnyway
+      - nodeSelector:
+          kubernetes.azure.com/mode: "system"
+      - tolerations:
+          - key: "CriticalAddonsOnly"
+            operator: "Equal"
+            value: "true"
+            effect: "NoSchedule"
+      - global:
+          multiCluster:
+            clusterName: "{{ .Values.accountName }}"
+      - meshConfig:
+          accessLogFile: "/dev/stdout"
+
+  - name: istio-cni
+    version: "1.25.1"
+    namespace: "istio-system"
+    chart: "../../helms/istio-cni"
+    needs:
+      - istiod
+    values:
+      - image: "{{ .Values.registry }}/istio/install-cni:1.25.1"
+
+  - name: cert-manager
+    chart: "../../helms/cert-manager"
+    namespace: archon-system
+    version: "v1.17.0"
+    createNamespace: true
+    wait: true
+    values:
+      - crds:
+          enabled: true
+          keep: true
+      - replicaCount: 2
+      - podDisruptionBudget:
+          enabled: true
+          minAvailable: 1
+      - podLabels:
+          azure.workload.identity/use: "true"
+      - serviceAccount:
+          create: true
+          name: "cert-manager"
+          labels:
+            azure.workload.identity/use: "true"
+      - nodeSelector:
+          kubernetes.azure.com/mode: "system"
+      - tolerations:
+          - key: "CriticalAddonsOnly"
+            operator: "Equal"
+            value: "true"
+            effect: "NoSchedule"
+      - topologySpreadConstraints:
+          - maxSkew: 1
+            topologyKey: "kubernetes.io/hostname"
+            whenUnsatisfiable: ScheduleAnyway
+      - extraArgs:
+          - --dns01-recursive-nameservers-only
+      - image:
+          # from quay.io/jetstack/cert-manager-controller
+          repository: "{{ .Values.registry }}/jetstack/cert-manager-controller"
+      - webhook:
+          image:
+            # from quay.io/jetstack/cert-manager-webhook
+            repository: "{{ .Values.registry }}/jetstack/cert-manager-webhook"
+          replicaCount: 2
+          podDisruptionBudget:
+            enabled: true
+            minAvailable: 1
+          nodeSelector:
+            kubernetes.azure.com/mode: "system"
+          tolerations:
+            - key: "CriticalAddonsOnly"
+              operator: "Equal"
+              value: "true"
+              effect: "NoSchedule"
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: "kubernetes.io/hostname"
+              whenUnsatisfiable: ScheduleAnyway
+      - cainjector:
+          image:
+            repository: "{{ .Values.registry }}/jetstack/cert-manager-cainjector"
+            pullPolicy: Always
+          replicaCount: 2
+          podDisruptionBudget:
+            enabled: true
+            minAvailable: 1
+          nodeSelector:
+            kubernetes.azure.com/mode: "system"
+          tolerations:
+            - key: "CriticalAddonsOnly"
+              operator: "Equal"
+              value: "true"
+              effect: "NoSchedule"
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: "kubernetes.io/hostname"
+              whenUnsatisfiable: ScheduleAnyway
+      - acmesolver:
+          image:
+            repository: "{{ .Values.registry }}/cert-manager/acmesolver"
+      - startupapicheck:
+          enabled: false
+
+  - name: ingress-from-internet
+    needs:
+      - istio-system/istiod
+    #TODO: make this use the values from the base helmfile.yaml
+    namespace: istio-system
+    chart: "../../helms/istio-gateway"
+    values:
+      - env:
+          # Disables plaintext debugging
+          ENABLE_DEBUG_ON_HTTP: "false"
+      - autoscaling:
+          enabled: true
+          minReplicas: 2
+      - extraContainerArgs:
+          # Disables plaintext XDS
+          - --grpcAddr=""
+      - topologySpreadConstraints:
+          - maxSkew: 1
+            topologyKey: "kubernetes.io/hostname"
+            whenUnsatisfiable: ScheduleAnyway
+      - service:
+          type: LoadBalancer
+          annotations:
+            service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+          ports:
+            - name: status-port
+              port: 15021
+              targetPort: 15021
+            - name: https
+              port: 443
+              targetPort: 443
+        labels:
+          app: ingress-from-internet
+
+  - name: svcs-base
+    chart: "../../helms/svcs-base"
+    needs:
+      - istio-system/istiod
+      - archon-system/cert-manager
+    values:
+      - fqdn: "{{ .Values.fqdn }}"
+      - istio:
+          internetIngressLabel: ingress-from-internet
+      - dnsIdentity:
+          clientId: "{{ .Values.dns.clientId }}"
+      - azure:
+          resourceGroupName: "{{ .Values.dns.resourceGroupName }}"
+          subscriptionId: "{{ .Values.dns.subscriptionId }}"
+          environment: AzurePublicCloud

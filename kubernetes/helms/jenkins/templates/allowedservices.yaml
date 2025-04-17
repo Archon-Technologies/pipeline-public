@@ -1,0 +1,31 @@
+apiVersion: networking.istio.io/v1
+kind: ServiceEntry
+metadata:
+  name: ms-hosts
+  namespace: {{ .Values.agent.namespace }}
+spec:
+  # Only allow these hosts in the current namespace and jenkins namespace
+  exportTo:
+  - "."
+  - "{{ .Release.Namespace }}"
+  hosts:
+  # This is for pulling from source control
+  - "github.com"
+  - "api.github.com"
+  - "raw.githubusercontent.com"
+  - "codeload.github.com"
+  # For downloading artifacts from GitHub
+  - "*.blob.core.windows.net"
+  # This is for jenkins checking for updates
+  - "*.jenkins.io"
+  # Allow access to acr
+  - "*.azurecr.io"
+  # This is for oauth authentication and infrastructure deployment
+  - "management.azure.com"
+  - "graph.microsoft.com"
+  location: MESH_EXTERNAL
+  ports:
+  - number: 443
+    name: https
+    protocol: HTTPS
+  resolution: NONE

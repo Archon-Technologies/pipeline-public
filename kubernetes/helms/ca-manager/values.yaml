@@ -1,0 +1,42 @@
+apiVersion: v2
+name: ca-manager
+description: A Helm chart for deploying the CA Manager application
+type: application
+version: 0.1.0
+appVersion: latest # TODO: Update to immutable versioning
+
+# values.yaml file content
+replicaCount: 2
+
+image:
+  repository: archon.azurecr.io/ca-manager
+  tag: latest
+  pullPolicy: Always
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8000  # 8000 set as a defaylt port. May need to change.
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi # Resources set as default. May need to change.
+
+nodeSelector: {}
+
+tolerations: []
