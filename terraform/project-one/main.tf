@@ -83,8 +83,9 @@ provider "azurerm" {
   resource_provider_registrations = "none"
 
   features {}
-  subscription_id = var.subscription
-  alias           = "shared_services"
+  subscription_id     = var.subscription
+  storage_use_azuread = true
+  alias               = "shared_services"
 }
 
 provider "azurerm" {
@@ -103,12 +104,14 @@ provider "azurerm" {
     "Microsoft.ContainerService",
     "Microsoft.DBforPostgreSQL"
   ]
-  subscription_id = local.local_subscription_id
+  storage_use_azuread = true
+  subscription_id     = local.local_subscription_id
 }
 
 provider "azurerm" {
   features {}
   subscription_id                 = data.terraform_remote_state.shared_services.outputs.web_dns_zone_subscription_id
   alias                           = "networking"
+  storage_use_azuread             = true
   resource_provider_registrations = "none"
 }
