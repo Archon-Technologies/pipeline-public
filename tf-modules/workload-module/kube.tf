@@ -108,6 +108,10 @@ resource "azurerm_kubernetes_cluster" "primary-aks" {
   workload_identity_enabled = true
   oidc_issuer_enabled       = true
 
+  tags = {
+    archon_workload = var.should_be_jenkins_controlled ? "true" : "false"
+  }
+
 
   default_node_pool {
     temporary_name_for_rotation = random_string.system_pool_change_id.result

@@ -14,6 +14,12 @@ variable "location" {
   default     = "West US 3"
 }
 
+variable "should_be_jenkins_controlled" {
+  description = "Whether the workload should be controlled by Jenkins"
+  type        = bool
+  default     = false
+}
+
 variable "address_space" {
   description = "The address space for the virtual network"
   type        = list(string)

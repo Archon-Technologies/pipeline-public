@@ -18,6 +18,8 @@ module "shared_service_workload" {
 
   zones = [1, 2]
 
+  should_be_jenkins_controlled = true
+
   dns_servers = [
     data.terraform_remote_state.shared_services.outputs.firewall_ip
   ]
