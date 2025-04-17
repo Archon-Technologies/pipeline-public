@@ -18,7 +18,10 @@ module "shared_service_workload" {
 
   zones = [1, 2]
 
-  should_be_autocontrolled = true
+  should_be_autocontrolled     = true
+  tfstate_storage_account_name = data.terraform_remote_state.shared_services.outputs.tfstate_storage_account_name
+  tfstate_kube_container_name  = data.terraform_remote_state.shared_services.outputs.tfstate_kube_container_name
+  registry_address             = data.terraform_remote_state.shared_services.outputs.registry_address
 
   dns_servers = [
     data.terraform_remote_state.shared_services.outputs.firewall_ip

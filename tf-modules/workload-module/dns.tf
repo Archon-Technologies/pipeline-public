@@ -5,7 +5,7 @@ resource "azurerm_user_assigned_identity" "dns_identity" {
 }
 
 resource "azurerm_dns_zone" "zone" {
-  name                = "${var.workload_name}.${var.root_fqdn}"
+  name                = "${var.workload_name}.${var.web_dns_zone_name}"
   resource_group_name = azurerm_resource_group.rg.name
 }
 

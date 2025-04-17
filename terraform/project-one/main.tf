@@ -35,13 +35,19 @@ variable "location" {
   default     = "westus3"
 }
 
+variable "tfstate_storage_account_name" {
+  description = "The name of the storage account to use for the tfstate"
+  type        = string
+  default     = "tfstateajsa"
+}
+
 data "terraform_remote_state" "shared_services" {
   backend = "azurerm"
   config = {
-    resource_group_name  = "tfstate"
-    storage_account_name = "tfstateajsa"
-    container_name       = "tfstate"
+    storage_account_name = var.tfstate_storage_account_name
     subscription_id      = var.subscription
+    resource_group_name  = "tfstate"
+    container_name       = "tfstate"
     use_azuread_auth     = true
     key                  = "shared-services.tfstate"
   }

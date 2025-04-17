@@ -3,11 +3,6 @@ variable "workload_name" {
   type        = string
 }
 
-variable "root_fqdn" {
-  type    = string
-  default = "archongov.com"
-}
-
 variable "location" {
   description = "The Azure region where the resources will be deployed"
   type        = string
@@ -50,6 +45,23 @@ variable "zones" {
 variable "workload_group_dependency_object_id" {
   default     = null
   description = "The dependency for the workload group"
+}
+
+variable "tfstate_storage_account_name" {
+  description = "Used for autodeployment - The name of the storage account for the tfstate"
+  type        = string
+}
+
+variable "tfstate_kube_container_name" {
+  description = "Used for autodeployment - The name of the container for the kubernetes configuration details in tfstate"
+  type        = string
+  default     = "kube"
+}
+
+variable "registry_address" {
+  description = "Used for autodeployment - The address of the OCI registry to use for the workload"
+  type        = string
+  default     = "archon.azurecr.io"
 }
 
 # variable "assc_route_table_id" {
