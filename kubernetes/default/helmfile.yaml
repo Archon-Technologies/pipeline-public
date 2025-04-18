@@ -1,7 +1,13 @@
 environments:
   default:
     values:
-      - "{{ requiredEnv "VALUES_FILE" }}"
+      - registry: archonacrutdb.azurecr.io
+      - accountName: "bravo"
+      - fqdn: "bravo.archongov.com"
+      - dns:
+          clientId: 98a88731-943e-4064-a3d3-7a259eda90ec
+          resourceGroupName: bravo-rg-wl
+          subscriptionId: 4c896e3b-fe32-46a8-a931-0baff63f5a8d
 ---
 bases:
   - ../common/helmfile.yaml

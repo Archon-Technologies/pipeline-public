@@ -69,7 +69,7 @@ releases:
   - name: cert-manager
     chart: "../../helms/cert-manager"
     namespace: archon-system
-    version: "v1.17.0"
+    version: "v1.17.1"
     createNamespace: true
     wait: true
     values:
@@ -104,13 +104,13 @@ releases:
           # from quay.io/jetstack/cert-manager-controller
           repository: "{{ .Values.registry }}/jetstack/cert-manager-controller"
           pullPolicy: Always
-          tag: v1.17.0
+          tag: v1.17.1
       - webhook:
           image:
             # from quay.io/jetstack/cert-manager-webhook
             repository: "{{ .Values.registry }}/jetstack/cert-manager-webhook"
             pullPolicy: Always
-            tag: v1.17.0
+            tag: v1.17.1
           replicaCount: 2
           podDisruptionBudget:
             enabled: true
@@ -126,10 +126,17 @@ releases:
             - maxSkew: 1
               topologyKey: "kubernetes.io/hostname"
               whenUnsatisfiable: ScheduleAnyway
+          podAnnotations:
+            # To prevent the webhook from getting stopped with an error like:
+            # failed to call webhook: Post "https://cert-manager-webhook.archon-system.svc:443/validate?timeout=30s":
+            # tls: failed to verify certificate: x509: certificate is not valid for any names,
+            # but wanted to match cert-manager-webhook.archon-system.svc
+            # Don't worry, this is still encrypted, just not by Istio
+            sidecar.istio.io/inject: "false"
       - cainjector:
           image:
             repository: "{{ .Values.registry }}/jetstack/cert-manager-cainjector"
-            tag: v1.17.0
+            tag: v1.17.1
             pullPolicy: Always
           replicaCount: 2
           podDisruptionBudget:
@@ -149,7 +156,7 @@ releases:
       - acmesolver:
           image:
             repository: "{{ .Values.registry }}/cert-manager/acmesolver"
-            tag: v1.17.0
+            tag: v1.17.1
             pullPolicy: Always
       - startupapicheck:
           enabled: false
