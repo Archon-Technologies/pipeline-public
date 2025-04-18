@@ -190,6 +190,7 @@ releases:
 
   - name: svcs-base
     chart: "../../helms/svcs-base"
+    namespace: default
     needs:
       - istio-system/istiod
       - archon-system/cert-manager
