@@ -60,7 +60,7 @@ module "charlie_postgres" {
 }
 
 resource "azurerm_postgresql_flexible_server_active_directory_administrator" "c_ad_admin" {
-  server_name         = module.postgres.name
+  server_name         = module.charlie_postgres.name
   object_id           = data.azurerm_client_config.current.object_id
   resource_group_name = module.charlie_wl.resource_group_name
   tenant_id           = data.azurerm_client_config.current.tenant_id
