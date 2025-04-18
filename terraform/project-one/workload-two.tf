@@ -40,7 +40,7 @@ module "charlie_postgres" {
   depends_on = [module.charlie_wl]
   source     = "../../tf-modules/postgres-module"
 
-  name     = "bravo-postgres"
+  name     = "charlie-postgres"
   location = module.charlie_wl.location
 
   private_dns_zone_id = data.terraform_remote_state.shared_services.outputs.postgres_dns_zone
