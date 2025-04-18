@@ -11,7 +11,7 @@ resource "azurerm_storage_blob" "workload_provision_details" {
   source_content = jsonencode({
     registry    = var.registry_address
     accountName = var.workload_name
-    fqdn        = var.web_dns_zone_name
+    fqdn        = "${var.workload_name}.${var.web_dns_zone_name}"
     dns = {
       clientId          = azurerm_user_assigned_identity.dns_identity.client_id
       resourceGroupName = azurerm_resource_group.rg.name
