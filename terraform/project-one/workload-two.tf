@@ -1,5 +1,6 @@
 module "charlie_wl" {
-  source = "../../tf-modules/workload-module"
+  depends_on = [azurerm_marketplace_agreement.ubuntu]
+  source     = "../../tf-modules/workload-module"
 
   workload_name = "charlie"
   location      = var.location
