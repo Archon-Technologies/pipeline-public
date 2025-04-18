@@ -11,6 +11,12 @@ metadata:
     {{- include "labels" . | nindent 4 }}
   {{- with .Values.webhook.deploymentAnnotations }}
   annotations:
+    # To prevent the webhook from getting stopped with an error like:
+    # failed to call webhook: Post "https://cert-manager-webhook.archon-system.svc:443/validate?timeout=30s": 
+    # tls: failed to verify certificate: x509: certificate is not valid for any names, 
+    # but wanted to match cert-manager-webhook.archon-system.svc
+    # Don't worry, this is still encrypted, just not by Istio
+    sidecar.istio.io/inject: "false"
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
