@@ -1,7 +1,7 @@
 environments:
   default:
     values:
-      - { { requiredEnv "VALUES_FILE" } }
+      - "{{ requiredEnv "VALUES_FILE" }}"
 ---
 bases:
   - ../common/helmfile.yaml
