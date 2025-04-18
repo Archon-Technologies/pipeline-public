@@ -115,3 +115,9 @@ provider "azurerm" {
   storage_use_azuread             = true
   resource_provider_registrations = "none"
 }
+
+resource "azurerm_marketplace_agreement" "ubuntu" {
+  publisher = "canonical"
+  offer     = "0001-com-ubuntu-pro-jammy-fips"
+  plan      = "pro-fips-22_04"
+}
