@@ -4,7 +4,7 @@ module "charlie_wl" {
   workload_name = "charlie"
   location      = var.location
   # place this one somewhere not in the 10/8 address space
-  address_space  = [cidrsubnet("10.0.0.0/8", 10, 1)]
+  address_space  = [cidrsubnet("10.0.0.0/8", 10, 2)]
   virtual_hub_id = data.terraform_remote_state.shared_services.outputs.virtual_hub_id
 
   ip_group_id = data.terraform_remote_state.shared_services.outputs.ip_group_id
