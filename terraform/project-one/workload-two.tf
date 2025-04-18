@@ -1,7 +1,7 @@
-module "shared_service_workload" {
+module "charlie_wl" {
   source = "../../tf-modules/workload-module"
 
-  workload_name = "bravo"
+  workload_name = "charlie"
   location      = var.location
   # place this one somewhere not in the 10/8 address space
   address_space  = [cidrsubnet("10.0.0.0/8", 10, 1)]
@@ -35,34 +35,35 @@ module "shared_service_workload" {
   #   firewall_dependency = azurerm_firewall_policy_rule_collection_group.app_policy_rule_collection_group
 }
 
-module "postgres" {
+module "charlie_postgres" {
   # Network connectivity needs to be established before the database can be created
-  depends_on = [module.shared_service_workload]
+  depends_on = [module.charlie_wl]
   source     = "../../tf-modules/postgres-module"
 
   name     = "bravo-postgres"
-  location = module.shared_service_workload.location
+  location = module.charlie_wl.location
 
   private_dns_zone_id = data.terraform_remote_state.shared_services.outputs.postgres_dns_zone
-  resource_group_name = module.shared_service_workload.resource_group_name
+  resource_group_name = module.charlie_wl.resource_group_name
 
-  virtual_network_name = module.shared_service_workload.virtual_network_name
+  virtual_network_name = module.charlie_wl.virtual_network_name
   address_prefixes = [
-    cidrsubnet(module.shared_service_workload.address_space[0], 4, 1),
+    cidrsubnet(module.charlie_wl.address_space[0], 4, 1),
   ]
 
   databases = [
     "govdash"
   ]
 
-  workload_object = module.shared_service_workload
+  workload_object = module.charlie_wl
 }
 
-resource "azurerm_postgresql_flexible_server_active_directory_administrator" "ad_admin" {
+resource "azurerm_postgresql_flexible_server_active_directory_administrator" "c_ad_admin" {
   server_name         = module.postgres.name
   object_id           = data.azurerm_client_config.current.object_id
-  resource_group_name = module.shared_service_workload.resource_group_name
+  resource_group_name = module.charlie_wl.resource_group_name
   tenant_id           = data.azurerm_client_config.current.tenant_id
   principal_name      = "postgres-admin"
   principal_type      = "ServicePrincipal"
 }
+
