@@ -1,5 +1,6 @@
 module "shared_service_workload" {
-  source = "../../tf-modules/workload-module"
+  depends_on = [azurerm_marketplace_agreement.ubuntu]
+  source     = "../../tf-modules/workload-module"
 
   workload_name = "bravo"
   location      = var.location
