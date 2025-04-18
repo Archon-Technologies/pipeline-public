@@ -5,6 +5,12 @@ metadata:
   namespace: {{ include "cert-manager.namespace" . }}
 {{- with .Values.webhook.serviceAnnotations }}
   annotations:
+    # To prevent the webhook from getting stopped with an error like:
+    # failed to call webhook: Post "https://cert-manager-webhook.archon-system.svc:443/validate?timeout=30s": 
+    # tls: failed to verify certificate: x509: certificate is not valid for any names, 
+    # but wanted to match cert-manager-webhook.archon-system.svc
+    # Don't worry, this is still encrypted, just not by Istio
+    sidecar.istio.io/inject: "false"
 {{ toYaml . | indent 4 }}
 {{- end }}
   labels:
