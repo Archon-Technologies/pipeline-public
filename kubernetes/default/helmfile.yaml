@@ -3,6 +3,9 @@ environments:
   default:
     values:
       - "{{ requiredEnv "VALUES_FILE" }}"
+---
+bases:
+  - ../common/helmfile.yaml
 # Your app
 releases:
   - name: my-app
@@ -12,8 +15,3 @@ releases:
     values:
       - registry: {{ .Values.registry }}
         fqdn: {{ .Values.fqdn }}
-    
-# More required boilerplate
----
-bases:
-  - ../common/helmfile.yaml
