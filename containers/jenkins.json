@@ -1,7 +1,7 @@
 {
     "name": "User defined name",
     "description": "User defined description",
-    "image": "ghcr.io/jenkins/jenkins",
-    "destination": "govdash/jenkins",
-    "tag": "swaus"
+    "image": "archonacrutdb.azurecr.io/archon-technologies/archon-demo-node-app",
+    "destination": "govdash/test",
+    "tag": "latest"
 }
