@@ -1,1 +1,7 @@
-{}
+{
+    "name": "User defined name",
+    "description": "User defined description",
+    "image": "ghcr.io/jenkins/jenkins",
+    "destination": "govdash/jenkins",
+    "tag": "swaus"
+}
