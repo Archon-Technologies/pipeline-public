@@ -30,7 +30,8 @@ module "charlie_wl" {
 
   providers = {
     azurerm.shared_services = azurerm.shared_services,
-    azurerm.networking      = azurerm.networking
+    azurerm.networking      = azurerm.networking,
+    azurerm.registration    = azurerm.registration
   }
 
   #   firewall_dependency = azurerm_firewall_policy_rule_collection_group.app_policy_rule_collection_group

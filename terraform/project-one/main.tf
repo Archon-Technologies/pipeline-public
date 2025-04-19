@@ -116,6 +116,14 @@ provider "azurerm" {
   resource_provider_registrations = "none"
 }
 
+provider "azurerm" {
+  features {}
+  subscription_id                 = data.terraform_remote_state.shared_services.outputs.registration_subscription_id
+  alias                           = "registration"
+  storage_use_azuread             = true
+  resource_provider_registrations = "none"
+}
+
 resource "azurerm_marketplace_agreement" "ubuntu" {
   publisher = "canonical"
   offer     = "0001-com-ubuntu-pro-jammy-fips"
