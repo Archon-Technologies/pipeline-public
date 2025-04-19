@@ -17,7 +17,8 @@ module "charlie_wl" {
 
   acr_id = data.terraform_remote_state.shared_services.outputs.acr_id
 
-  zones = [1, 2]
+  zones              = [1, 2]
+  kubernetes_version = "1.31"
 
   should_be_autocontrolled     = true
   tfstate_storage_account_name = data.terraform_remote_state.shared_services.outputs.tfstate_storage_account_name
