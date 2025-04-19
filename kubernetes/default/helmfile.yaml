@@ -1,7 +1,19 @@
+# Required boilerplate
 environments:
   default:
     values:
       - "{{ requiredEnv "VALUES_FILE" }}"
+# Your app
+releases:
+  - name: my-app
+    chart: "../../helmcharts/my-app"
+    namespace: default
+    # These values are supplied by the injected VALUES_FILE.
+    values:
+      - registry: {{ .Values.registry }}
+        fqdn: {{ .Values.fqdn }}
+    
+# More required boilerplate
 ---
 bases:
   - ../common/helmfile.yaml
