@@ -25,6 +25,8 @@ module "charlie_wl" {
   tfstate_kube_container_name  = data.terraform_remote_state.shared_services.outputs.tfstate_kube_container_name
   registry_address             = data.terraform_remote_state.shared_services.outputs.registry_address
 
+  key_vault_name = data.terraform_remote_state.shared_services.outputs.keyvault_name
+
   dns_servers = [
     data.terraform_remote_state.shared_services.outputs.firewall_ip
   ]

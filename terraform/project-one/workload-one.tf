@@ -28,6 +28,8 @@ module "shared_service_workload" {
     data.terraform_remote_state.shared_services.outputs.firewall_ip
   ]
 
+  key_vault_name = data.terraform_remote_state.shared_services.outputs.keyvault_name
+
   providers = {
     azurerm.shared_services = azurerm.shared_services,
     azurerm.networking      = azurerm.networking,
