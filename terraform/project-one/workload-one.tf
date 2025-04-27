@@ -57,7 +57,13 @@ module "postgres" {
     "govdash"
   ]
 
-  workload_object = module.shared_service_workload
+  workload_object              = module.shared_service_workload
+  tfstate_storage_account_name = data.terraform_remote_state.shared_services.outputs.tfstate_storage_account_name
+  tfstate_kube_container_name  = data.terraform_remote_state.shared_services.outputs.tfstate_kube_container_name
+
+  providers = {
+    azurerm.registration = azurerm.registration
+  }
 }
 
 resource "azurerm_postgresql_flexible_server_active_directory_administrator" "ad_admin" {

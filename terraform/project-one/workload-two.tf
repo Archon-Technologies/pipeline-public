@@ -58,7 +58,13 @@ module "charlie_postgres" {
     "govdash"
   ]
 
-  workload_object = module.charlie_wl
+  workload_object              = module.charlie_wl
+  tfstate_storage_account_name = data.terraform_remote_state.shared_services.outputs.tfstate_storage_account_name
+  tfstate_kube_container_name  = data.terraform_remote_state.shared_services.outputs.tfstate_kube_container_name
+
+  providers = {
+    azurerm.registration = azurerm.registration
+  }
 }
 
 resource "azurerm_postgresql_flexible_server_active_directory_administrator" "c_ad_admin" {
