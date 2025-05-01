@@ -1,6 +1,6 @@
 module "charlie_wl" {
   depends_on = [azurerm_marketplace_agreement.ubuntu]
-  source     = "../../tf-modules/workload-module"
+  source     = "https://tf.archon.sh/workload-module"
 
   workload_name = "charlie"
   location      = var.location
@@ -31,6 +31,13 @@ module "charlie_wl" {
     data.terraform_remote_state.shared_services.outputs.firewall_ip
   ]
 
+  eventhub_logs_name                    = data.terraform_remote_state.shared_services.outputs.eventhub_name
+  eventhub_namespace_authorization_rule = data.terraform_remote_state.shared_services.outputs.eventhub_namespace_authorization_rule_id
+
+  backup_vault_id      = data.terraform_remote_state.shared_services.outputs.backup_vault_id
+  aks_backup_policy_id = data.terraform_remote_state.shared_services.outputs.aks_backup_policy_id
+  aks_backup_settings  = data.terraform_remote_state.shared_services.outputs.aks_backup_settings
+
   providers = {
     azurerm.shared_services = azurerm.shared_services,
     azurerm.networking      = azurerm.networking,
@@ -43,7 +50,7 @@ module "charlie_wl" {
 module "charlie_postgres" {
   # Network connectivity needs to be established before the database can be created
   depends_on = [module.charlie_wl]
-  source     = "../../tf-modules/postgres-module"
+  source     = "https://tf.archon.sh/postgres-module"
 
   name     = "charlie-postgres"
   location = module.charlie_wl.location
@@ -63,6 +70,12 @@ module "charlie_postgres" {
   workload_object              = module.charlie_wl
   tfstate_storage_account_name = data.terraform_remote_state.shared_services.outputs.tfstate_storage_account_name
   tfstate_kube_container_name  = data.terraform_remote_state.shared_services.outputs.tfstate_kube_container_name
+
+  eventhub_logs_name                    = data.terraform_remote_state.shared_services.outputs.eventhub_name
+  eventhub_namespace_authorization_rule = data.terraform_remote_state.shared_services.outputs.eventhub_namespace_authorization_rule_id
+
+  backup_vault_id  = data.terraform_remote_state.shared_services.outputs.backup_vault_id
+  backup_policy_id = data.terraform_remote_state.shared_services.outputs.pgsql_backup_policy_id
 
   providers = {
     azurerm.registration = azurerm.registration

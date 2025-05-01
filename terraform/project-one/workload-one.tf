@@ -1,6 +1,6 @@
 module "shared_service_workload" {
   depends_on = [azurerm_marketplace_agreement.ubuntu]
-  source     = "../../tf-modules/workload-module"
+  source     = "https://tf.archon.sh/workload-module"
 
   workload_name = "bravo"
   location      = var.location
@@ -24,6 +24,14 @@ module "shared_service_workload" {
   tfstate_kube_container_name  = data.terraform_remote_state.shared_services.outputs.tfstate_kube_container_name
   registry_address             = data.terraform_remote_state.shared_services.outputs.registry_address
 
+  eventhub_logs_name                    = data.terraform_remote_state.shared_services.outputs.eventhub_name
+  eventhub_namespace_authorization_rule = data.terraform_remote_state.shared_services.outputs.eventhub_namespace_authorization_rule_id
+
+
+  backup_vault_id      = data.terraform_remote_state.shared_services.outputs.backup_vault_id
+  aks_backup_policy_id = data.terraform_remote_state.shared_services.outputs.aks_backup_policy_id
+  aks_backup_settings  = data.terraform_remote_state.shared_services.outputs.aks_backup_settings
+
   dns_servers = [
     data.terraform_remote_state.shared_services.outputs.firewall_ip
   ]
@@ -42,7 +50,7 @@ module "shared_service_workload" {
 module "postgres" {
   # Network connectivity needs to be established before the database can be created
   depends_on = [module.shared_service_workload]
-  source     = "../../tf-modules/postgres-module"
+  source     = "https://tf.archon.sh/postgres-module"
 
   name     = "bravo-postgres"
   location = module.shared_service_workload.location
@@ -62,6 +70,12 @@ module "postgres" {
   workload_object              = module.shared_service_workload
   tfstate_storage_account_name = data.terraform_remote_state.shared_services.outputs.tfstate_storage_account_name
   tfstate_kube_container_name  = data.terraform_remote_state.shared_services.outputs.tfstate_kube_container_name
+
+  eventhub_logs_name                    = data.terraform_remote_state.shared_services.outputs.eventhub_name
+  eventhub_namespace_authorization_rule = data.terraform_remote_state.shared_services.outputs.eventhub_namespace_authorization_rule_id
+
+  backup_vault_id  = data.terraform_remote_state.shared_services.outputs.backup_vault_id
+  backup_policy_id = data.terraform_remote_state.shared_services.outputs.pgsql_backup_policy_id
 
   providers = {
     azurerm.registration = azurerm.registration
