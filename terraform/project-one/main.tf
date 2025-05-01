@@ -104,7 +104,8 @@ provider "azurerm" {
     "Microsoft.ContainerService",
     "Microsoft.DBforPostgreSQL",
     "Microsoft.KubernetesConfiguration",
-    "Microsoft.Insights"
+    // seriously only this one is lowercase. why.
+    "microsoft.insights"
   ]
   storage_use_azuread = true
   subscription_id     = local.local_subscription_id
