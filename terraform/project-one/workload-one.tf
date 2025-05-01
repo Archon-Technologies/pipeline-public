@@ -64,7 +64,8 @@ module "postgres" {
   ]
 
   databases = [
-    "govdash"
+    "govdash",
+    "swag"
   ]
 
   workload_object              = module.shared_service_workload
@@ -80,13 +81,4 @@ module "postgres" {
   providers = {
     azurerm.registration = azurerm.registration
   }
-}
-
-resource "azurerm_postgresql_flexible_server_active_directory_administrator" "ad_admin" {
-  server_name         = module.postgres.name
-  object_id           = data.azurerm_client_config.current.object_id
-  resource_group_name = module.shared_service_workload.resource_group_name
-  tenant_id           = data.azurerm_client_config.current.tenant_id
-  principal_name      = "postgres-admin"
-  principal_type      = "ServicePrincipal"
 }

@@ -64,7 +64,8 @@ module "charlie_postgres" {
   ]
 
   databases = [
-    "govdash"
+    "govdash",
+    "othertest"
   ]
 
   workload_object              = module.charlie_wl
@@ -80,14 +81,5 @@ module "charlie_postgres" {
   providers = {
     azurerm.registration = azurerm.registration
   }
-}
-
-resource "azurerm_postgresql_flexible_server_active_directory_administrator" "c_ad_admin" {
-  server_name         = module.charlie_postgres.name
-  object_id           = data.azurerm_client_config.current.object_id
-  resource_group_name = module.charlie_wl.resource_group_name
-  tenant_id           = data.azurerm_client_config.current.tenant_id
-  principal_name      = "postgres-admin"
-  principal_type      = "ServicePrincipal"
 }
 
