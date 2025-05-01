@@ -103,7 +103,8 @@ provider "azurerm" {
     "Microsoft.Storage",
     "Microsoft.ContainerService",
     "Microsoft.DBforPostgreSQL",
-    "Microsoft.KubernetesConfiguration"
+    "Microsoft.KubernetesConfiguration",
+    "Microsoft.Insights"
   ]
   storage_use_azuread = true
   subscription_id     = local.local_subscription_id
