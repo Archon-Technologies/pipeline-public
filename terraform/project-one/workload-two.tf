@@ -32,6 +32,7 @@ module "charlie_wl" {
   ]
 
   eventhub_logs_name                    = data.terraform_remote_state.shared_services.outputs.eventhub_name
+  eventhub_logs_id                      = data.terraform_remote_state.shared_services.outputs.eventhub_id
   eventhub_namespace_authorization_rule = data.terraform_remote_state.shared_services.outputs.eventhub_namespace_authorization_rule_id
 
   backup_vault_id      = data.terraform_remote_state.shared_services.outputs.backup_vault_id
@@ -74,7 +75,6 @@ module "charlie_postgres" {
 
   eventhub_logs_name                    = data.terraform_remote_state.shared_services.outputs.eventhub_name
   eventhub_namespace_authorization_rule = data.terraform_remote_state.shared_services.outputs.eventhub_namespace_authorization_rule_id
-  eventhub_logs_id                      = data.terraform_remote_state.shared_services.outputs.eventhub_id
 
   backup_vault_id  = data.terraform_remote_state.shared_services.outputs.backup_vault_id
   backup_policy_id = data.terraform_remote_state.shared_services.outputs.pgsql_backup_policy_id
