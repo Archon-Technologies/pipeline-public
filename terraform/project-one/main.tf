@@ -94,7 +94,6 @@ provider "azurerm" {
 
   resource_providers_to_register = [
     "Microsoft.Authorization",
-    "Microsoft.Compute",
     "Microsoft.CostManagement",
     "Microsoft.ManagedIdentity",
     "Microsoft.MarketplaceOrdering",
@@ -104,11 +103,21 @@ provider "azurerm" {
     "Microsoft.ContainerService",
     "Microsoft.DBforPostgreSQL",
     "Microsoft.KubernetesConfiguration",
+    "Microsoft.PolicyInsights",
     // seriously only this one is lowercase. why.
     "microsoft.insights"
   ]
   storage_use_azuread = true
   subscription_id     = local.local_subscription_id
+}
+
+resource "azurerm_resource_provider_registration" "compute_encryption_at_host" {
+  name = "Microsoft.Compute"
+
+  feature {
+    name       = "EncryptionAtHost"
+    registered = true
+  }
 }
 
 provider "azurerm" {

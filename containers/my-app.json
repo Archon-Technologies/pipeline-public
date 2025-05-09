@@ -3,5 +3,10 @@
   "description": "My amazing FedRAMP-compliant application!",
   "image": "ghcr.io/Archon-Technologies/archon-demo-node-app",
   "destination": "my-organization/my-app",
-  "tag": "1.0-test"
+  "tag": "1.0-test",
+  "stig": {
+    "enabled": true,
+    "filepath": "ssg-chainguard-gpos-ds.xml",
+    "profile": "xccdf_basic_profile_.check"
+  }
 }
