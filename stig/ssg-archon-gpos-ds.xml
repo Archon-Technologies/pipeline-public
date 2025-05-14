@@ -3598,7 +3598,7 @@
                     </ns0:check>
                 </ns0:Rule>
                 <ns0:Rule id="xccdf_._rule_V_203776" selected="true" severity="high">
-                    <ns0:title xml:lang="en">The operating system must implement NIST FIPS-validated
+                    <ns0:title xml:lang="en">FIPS test: The operating system must implement NIST FIPS-validated
                         cryptography for the following: to provision digital signatures, to generate
                         cryptographic hashes, and to protect unclassified information requiring
                         confidentiality and cryptographic protection in accordance with applicable
