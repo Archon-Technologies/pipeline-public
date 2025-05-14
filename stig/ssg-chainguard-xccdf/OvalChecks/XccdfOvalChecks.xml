@@ -1701,7 +1701,7 @@ To manually verify, ensure that fipsmodule.cnf and openssl.cnf exist in the /etc
       </check>
     </Rule>
     <Rule id="xccdf_V-203776_rule_.oval" selected="true" severity="high">
-      <title>The operating system must implement NIST FIPS-validated cryptography for the following: to provision digital signatures, to generate cryptographic hashes, and to protect unclassified information requiring confidentiality and cryptographic protection in accordance with applicable federal laws, Executive Orders, directives, policies, regulations, and standards.</title>
+      <title>FIPS Test: The operating system must implement NIST FIPS-validated cryptography for the following: to provision digital signatures, to generate cryptographic hashes, and to protect unclassified information requiring confidentiality and cryptographic protection in accordance with applicable federal laws, Executive Orders, directives, policies, regulations, and standards.</title>
       <description>
         <html:pre>Use of weak or untested encryption algorithms undermines the purposes of utilizing encryption to protect data. The operating system must implement cryptographic modules adhering to the higher standards approved by the federal government since this provides assurance they have been tested and validated.</html:pre>
       </description>
