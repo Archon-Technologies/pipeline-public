@@ -4,7 +4,7 @@ env:
       urls:
         - ${Z_URL}
       includePaths:
-        - ${Z_URL}.*
+        - ${Z_URL_REGEX}.*
       authentication:
         method: browser
         parameters:
