@@ -54,12 +54,12 @@ jobs:
   - type: report
     parameters:
       template: traditional-json
-      reportDir: /zap/wrk/
+      reportDir: "."
       reportTitle: "ZAP Report"
       reportDescription: "ZAP Report"
   - type: report
     parameters:
       template: traditional-pdf
-      reportDir: /zap/wrk/
+      reportDir: "."
       reportTitle: "ZAP Report"
       reportDescription: "ZAP Report"
