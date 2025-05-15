@@ -4,7 +4,15 @@ env:
       urls:
         - ${Z_URL}
       includePaths:
-        - ${Z_URL}.*
+        - ${Z_URL_REGEX}.*
+      excludePaths:
+        # Don't scan every Jenkins job, just the static link ones
+        # These pages are all the same and are not useful to scan more than once
+        - "^${Z_URL_REGEX}\\/job\\/[^\\/]+\\/[0-9]+(?:\\/.*)?$"
+        # Don't scan the Jenkins artifacts
+        - "^${Z_URL_REGEX}\\/job\\/[^\\/]+\\/[^\\/]+\\/artifacts\\/.*$"
+        # Don't scan /static/*
+        - "^${Z_URL_REGEX}\\/static\\/.*$"
       authentication:
         method: browser
         parameters:
