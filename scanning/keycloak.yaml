@@ -1,0 +1,67 @@
+env:
+  contexts:
+    - name: Authentication Test
+      urls:
+        - ${Z_URL}
+      includePaths:
+        - ${Z_URL}.*
+      authentication:
+        method: browser
+        parameters:
+          loginPageUrl: ${Z_URL}
+          browserId: firefox-headless
+          loginPageWait: 10
+          steps:
+            - description: auto
+              type: AUTO_STEPS
+              timeout: 1000
+        verification:
+          method: poll
+          loggedInRegex: \Q 200 OK\E
+          loggedOutRegex: \Q 302 Found\E
+          pollFrequency: 60
+          pollUnits: requests
+          pollUrl: ${Z_URL}/realms/master/account?referrer=security-admin-console&referrer_uri=https%3A%2F%2Fauth.shared-services.archongov.com%2Fadmin%2Fmaster%2Fconsole%2F
+          pollPostData: ""
+      sessionManagement:
+        method: headers
+        parameters:
+          cookie: "KC_AUTH_SESSION_HASH={%cookie:KEYCLOAK_SESSION%}"
+      technology: {}
+      structure: {}
+      users:
+        - name: env-user
+          credentials:
+            password: ${Z_KEYCLOAK_PASS}
+            username: ${Z_KEYCLOAK_USER}
+  parameters: {}
+options:
+  config:
+    - name: view.mode
+      value: SAFE
+jobs:
+  - type: spider
+    parameters:
+      context: Authentication Test
+      user: env-user
+      parseDsStore: null
+  - type: spiderAjax
+    parameters:
+      context: Authentication Test
+      user: env-user
+      browserId: firefox-headless
+  - type: passiveScan-wait
+    parameters:
+      maxDuration: 1200
+  - type: report
+    parameters:
+      template: traditional-json
+      reportDir: /zap/wrk/
+      reportTitle: "ZAP Report"
+      reportDescription: "ZAP Report"
+  - type: report
+    parameters:
+      template: traditional-pdf
+      reportDir: /zap/wrk/
+      reportTitle: "ZAP Report"
+      reportDescription: "ZAP Report"
