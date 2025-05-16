@@ -2,13 +2,13 @@ env:
   contexts:
     - name: Authentication Test
       urls:
-        - ${Z_URL}
+        - "{{ .Env.Z_URL }}"
       includePaths:
-        - ${Z_URL_REGEX}.*
+        - "{{ .Env.Z_URL_REGEX }}.*"
       authentication:
         method: browser
         parameters:
-          loginPageUrl: ${Z_URL}
+          loginPageUrl: "{{ .Env.Z_URL }}"
           browserId: firefox-headless
           loginPageWait: 10
           steps:
@@ -21,7 +21,7 @@ env:
           loggedOutRegex: \Q 302 Found\E
           pollFrequency: 60
           pollUnits: requests
-          pollUrl: ${Z_URL}/realms/master/account?referrer=security-admin-console&referrer_uri=https%3A%2F%2Fauth.shared-services.archongov.com%2Fadmin%2Fmaster%2Fconsole%2F
+          pollUrl: "{{ .Env.Z_URL }}/realms/master/account?referrer=security-admin-console&referrer_uri={{ .Env.Z_URL | urlquery }}%2Fadmin%2Fmaster%2Fconsole%2F"
           pollPostData: ""
       sessionManagement:
         method: headers
@@ -32,8 +32,8 @@ env:
       users:
         - name: env-user
           credentials:
-            password: ${Z_KEYCLOAK_PASS}
-            username: ${Z_KEYCLOAK_USER}
+            password: "{{ .Env.Z_KEYCLOAK_PASS }}"
+            username: "{{ .Env.Z_KEYCLOAK_USER }}"
   parameters: {}
 options:
   config:

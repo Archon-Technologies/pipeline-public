@@ -2,17 +2,17 @@ env:
   contexts:
     - name: Keycloak Auth
       urls:
-        - "${Z_URL}"
+        - "{{ .Env.Z_URL }}"
       includePaths:
-        - "${Z_URL_REGEX}.*"
+        - "{{ .Env.Z_URL_REGEX }}.*"
       excludePaths:
         # Ignore any numbered Jenkins jobs (no reason to bother, they are identical to the named ones)
         # This matches URL/job/jenkins-job-name/number or URL/view/view-name/job/jenkins-job-name/number
-        - "${Z_URL_REGEX}\\/.*\\/execution\\/node\\/[0-9].*"
-        - "${Z_URL_REGEX}(/me/my-views)?(/view/[^/]+)?/job/[^/]+/[0-9]+(?:/.*)?"
-        - "${Z_URL_REGEX}(\\/me\\/my-views)?(\\/view\\/[^/]+)?\\/job\\/[^/]+\\/[^/]+\\/artifact.*"
-        - "${Z_URL_REGEX}\\/static\\/.*"
-        - "${Z_URL_REGEX}\\/fingerprint\\/.*"
+        - "{{ .Env.Z_URL_REGEX }}\\/.*\\/execution\\/node\\/[0-9].*"
+        - "{{ .Env.Z_URL_REGEX }}(/me/my-views)?(/view/[^/]+)?/job/[^/]+/[0-9]+(?:/.*)?"
+        - "{{ .Env.Z_URL_REGEX }}(\\/me\\/my-views)?(\\/view\\/[^/]+)?\\/job\\/[^/]+\\/[^/]+\\/artifact.*"
+        - "{{ .Env.Z_URL_REGEX }}\\/static\\/.*"
+        - "{{ .Env.Z_URL_REGEX }}\\/fingerprint\\/.*"
       authentication:
         method: browser
         parameters:
@@ -29,7 +29,7 @@ env:
           loggedOutRegex: \Q 403 Forbidden\E
           pollFrequency: 60
           pollUnits: requests
-          pollUrl: "${Z_URL}/i18n/resourceBundle?baseName=jenkins.dialogs&_=1747303641693"
+          pollUrl: "{{ .Env.Z_URL }}/i18n/resourceBundle?baseName=jenkins.dialogs&_=1747303641693"
           pollPostData: ""
       sessionManagement:
         method: headers
@@ -38,8 +38,8 @@ env:
       users:
         - name: env-user
           credentials:
-            password: "${Z_KEYCLOAK_PASS}"
-            username: "${Z_KEYCLOAK_USER}"
+            password: "{{ .Env.Z_KEYCLOAK_PASS }}"
+            username: "{{ .Env.Z_KEYCLOAK_USER }}"
   parameters: {}
 jobs:
   - type: passiveScan-config
@@ -49,7 +49,7 @@ jobs:
     parameters:
       context: Keycloak Auth
       user: env-user
-      url: "${Z_URL}"
+      url: "{{ .Env.Z_URL }}"
   - type: passiveScan-wait
     parameters:
       maxDuration: 1200
