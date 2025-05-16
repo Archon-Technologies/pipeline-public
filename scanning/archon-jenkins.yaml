@@ -1,22 +1,22 @@
 env:
   contexts:
-    - name: Authentication Test
+    - name: Keycloak Auth
       urls:
-        - ${Z_URL}
+        - "${Z_URL}"
       includePaths:
-        - ${Z_URL_REGEX}.*
+        - "${Z_URL_REGEX}.*"
       excludePaths:
-        # Don't scan every Jenkins job, just the static link ones
-        # These pages are all the same and are not useful to scan more than once
-        - "^${Z_URL_REGEX}\\/job\\/[^\\/]+\\/[0-9]+(?:\\/.*)?$"
-        # Don't scan the Jenkins artifacts
-        - "^${Z_URL_REGEX}\\/job\\/[^\\/]+\\/[^\\/]+\\/artifacts\\/.*$"
-        # Don't scan /static/*
-        - "^${Z_URL_REGEX}\\/static\\/.*$"
+        # Ignore any numbered Jenkins jobs (no reason to bother, they are identical to the named ones)
+        # This matches URL/job/jenkins-job-name/number or URL/view/view-name/job/jenkins-job-name/number
+        - "${Z_URL_REGEX}\\/.*\\/execution\\/node\\/[0-9].*"
+        - "${Z_URL_REGEX}(/me/my-views)?(/view/[^/]+)?/job/[^/]+/[0-9]+(?:/.*)?"
+        - "${Z_URL_REGEX}(\\/me\\/my-views)?(\\/view\\/[^/]+)?\\/job\\/[^/]+\\/[^/]+\\/artifact.*"
+        - "${Z_URL_REGEX}\\/static\\/.*"
+        - "${Z_URL_REGEX}\\/fingerprint\\/.*"
       authentication:
         method: browser
         parameters:
-          loginPageUrl: ${Z_URL}
+          loginPageUrl: "${Z_URL}"
           browserId: firefox-headless
           loginPageWait: 10
           steps:
@@ -29,7 +29,7 @@ env:
           loggedOutRegex: \Q 403 Forbidden\E
           pollFrequency: 60
           pollUnits: requests
-          pollUrl: ${Z_URL}/i18n/resourceBundle?baseName=jenkins.dialogs&_=1747303641693
+          pollUrl: "${Z_URL}/i18n/resourceBundle?baseName=jenkins.dialogs&_=1747303641693"
           pollPostData: ""
       sessionManagement:
         method: headers
@@ -38,36 +38,30 @@ env:
       users:
         - name: env-user
           credentials:
-            password: ${Z_KEYCLOAK_PASS}
-            username: ${Z_KEYCLOAK_USER}
+            password: "${Z_KEYCLOAK_PASS}"
+            username: "${Z_KEYCLOAK_USER}"
   parameters: {}
-options:
-  config:
-    - name: view.mode
-      value: SAFE
 jobs:
+  - type: passiveScan-config
+    parameters:
+      scanOnlyInScope: true
   - type: spider
     parameters:
-      context: Authentication Test
+      context: Keycloak Auth
       user: env-user
-      parseDsStore: null
-  - type: spiderAjax
-    parameters:
-      context: Authentication Test
-      user: env-user
-      browserId: firefox-headless
+      url: "${Z_URL}"
   - type: passiveScan-wait
     parameters:
       maxDuration: 1200
   - type: report
     parameters:
       template: traditional-json
-      reportDir: "."
-      reportTitle: "ZAP Report"
-      reportDescription: "ZAP Report"
+      reportDir: .
+      reportTitle: ZAP Report
+      reportDescription: ZAP Report
   - type: report
     parameters:
       template: traditional-pdf
-      reportDir: "."
-      reportTitle: "ZAP Report"
-      reportDescription: "ZAP Report"
+      reportDir: .
+      reportTitle: ZAP Report
+      reportDescription: ZAP Report
