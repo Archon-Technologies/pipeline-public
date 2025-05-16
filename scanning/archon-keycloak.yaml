@@ -4,7 +4,9 @@ env:
       urls:
         - "{{ .Env.Z_URL }}"
       includePaths:
-        - "{{ .Env.Z_URL_REGEX }}.*"
+        # This injects regex, which needs single quotes
+        # prettier-ignore
+        - '{{ .Env.Z_URL_REGEX }}.*'
       authentication:
         method: browser
         parameters:

@@ -4,19 +4,22 @@ env:
       urls:
         - "{{ .Env.Z_URL }}"
       includePaths:
-        - "{{ .Env.Z_URL_REGEX }}.*"
+        # This injects regex, which needs single quotes
+        # prettier-ignore
+        - '{{ .Env.Z_URL_REGEX }}.*'
       excludePaths:
         # Ignore any numbered Jenkins jobs (no reason to bother, they are identical to the named ones)
         # This matches URL/job/jenkins-job-name/number or URL/view/view-name/job/jenkins-job-name/number
-        - "{{ .Env.Z_URL_REGEX }}\\/.*\\/execution\\/node\\/[0-9].*"
-        - "{{ .Env.Z_URL_REGEX }}(/me/my-views)?(/view/[^/]+)?/job/[^/]+/[0-9]+(?:/.*)?"
-        - "{{ .Env.Z_URL_REGEX }}(\\/me\\/my-views)?(\\/view\\/[^/]+)?\\/job\\/[^/]+\\/[^/]+\\/artifact.*"
-        - "{{ .Env.Z_URL_REGEX }}\\/static\\/.*"
-        - "{{ .Env.Z_URL_REGEX }}\\/fingerprint\\/.*"
+        - '{{ .Env.Z_URL_REGEX }}\/.*\/execution\/node\/[0-9].*'
+        # prettier-ignore
+        - '{{ .Env.Z_URL_REGEX }}(/me/my-views)?(/view/[^/]+)?/job/[^/]+/[0-9]+(?:/.*)?'
+        - '{{ .Env.Z_URL_REGEX }}(\/me\/my-views)?(\/view\/[^/]+)?\/job\/[^/]+\/[^/]+\/artifact.*'
+        - '{{ .Env.Z_URL_REGEX }}\/static\/.*'
+        - '{{ .Env.Z_URL_REGEX }}\/fingerprint\/.*'
       authentication:
         method: browser
         parameters:
-          loginPageUrl: "${Z_URL}"
+          loginPageUrl: "{{ .Env.Z_URL }}"
           browserId: firefox-headless
           loginPageWait: 10
           steps:
