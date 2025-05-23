@@ -9,10 +9,14 @@ env:
         - '{{ .Env.Z_URL_REGEX }}.*'
       excludePaths:
         # Ignore any numbered Jenkins jobs (no reason to bother, they are identical to the named ones)
-        # This matches URL/job/jenkins-job-name/number or URL/view/view-name/job/jenkins-job-name/number
+        # This matches URL/anything/execution/node/number[anything]
         - '{{ .Env.Z_URL_REGEX }}\/.*\/execution\/node\/[0-9].*'
+        # This matches URL/job/jenkins-job-name/number or URL/view/view-name/job/jenkins-job-name/number
+        # or URL/me/my-views/view/view-name/job/jenkins-job-name/number
         # prettier-ignore
         - '{{ .Env.Z_URL_REGEX }}(/me/my-views)?(/view/[^/]+)?/job/[^/]+/[0-9]+(?:/.*)?'
+        # This matches URL/job/jenkins-job-name/[anything]/artifact or URL/view/view-name/job/jenkins-job-name/[anything]/artifact
+        # or URL/me/my-views/view/view-name/job/jenkins-job-name/[anything]/artifact
         - '{{ .Env.Z_URL_REGEX }}(\/me\/my-views)?(\/view\/[^/]+)?\/job\/[^/]+\/[^/]+\/artifact.*'
         - '{{ .Env.Z_URL_REGEX }}\/static\/.*'
         - '{{ .Env.Z_URL_REGEX }}\/fingerprint\/.*'
