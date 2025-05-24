@@ -1,5 +1,5 @@
 module "charlie_wl" {
-  depends_on = [azurerm_marketplace_agreement.ubuntu]
+  depends_on = [azurerm_marketplace_agreement.ubuntu, azurerm_resource_provider_registration.compute_encryption_at_host]
   source     = "https://tf.archon.sh/workload-module"
 
   workload_name = "charlie"
