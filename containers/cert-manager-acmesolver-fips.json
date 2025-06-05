@@ -1,0 +1,12 @@
+{
+    "name": "Cert-Manager ACME Solver FIPS",
+    "description": "FIPS-compliant cert-manager ACME solver for automated certificate challenges",
+    "image": "containers.archon.sh/cert-manager/acmesolver-fips",
+    "destination": "cert-manager/acmesolver-fips",
+    "tag": "1.14.4",
+    "stig": {
+        "enabled": true,
+        "filepath": "ssg-archon-gpos-ds.xml",
+        "profile": "xccdf_basic_profile_.check"
+    }
+}

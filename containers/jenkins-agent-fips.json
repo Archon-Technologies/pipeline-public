@@ -1,0 +1,12 @@
+{
+    "name": "Archon Jenkins Agent FIPS",
+    "description": "FIPS-compliant Jenkins agent for secure CI/CD pipelines",
+    "image": "containers.archon.sh/archon/jenkins-agent-fips",
+    "destination": "archon/jenkins-agent-fips",
+    "tag": "3301.v4363ddcca_4e7",
+    "stig": {
+        "enabled": true,
+        "filepath": "ssg-archon-gpos-ds.xml",
+        "profile": "xccdf_basic_profile_.check"
+    }
+}

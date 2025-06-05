@@ -1,0 +1,12 @@
+{
+    "name": "Archon Python Tools",
+    "description": "Python development tools and utilities for secure applications",
+    "image": "containers.archon.sh/archon/py-tools",
+    "destination": "archon/py-tools",
+    "tag": "1.0.0",
+    "stig": {
+        "enabled": true,
+        "filepath": "ssg-archon-gpos-ds.xml",
+        "profile": "xccdf_basic_profile_.check"
+    }
+}

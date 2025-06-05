@@ -1,0 +1,12 @@
+{
+    "name": "Cert-Manager Webhook FIPS",
+    "description": "FIPS-compliant cert-manager webhook for certificate validation",
+    "image": "containers.archon.sh/cert-manager/webhook-fips",
+    "destination": "cert-manager/webhook-fips",
+    "tag": "1.14.4",
+    "stig": {
+        "enabled": true,
+        "filepath": "ssg-archon-gpos-ds.xml",
+        "profile": "xccdf_basic_profile_.check"
+    }
+}

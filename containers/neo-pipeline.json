@@ -1,0 +1,12 @@
+{
+    "name": "Archon Neo Pipeline",
+    "description": "Neo pipeline container for advanced workflow orchestration",
+    "image": "containers.archon.sh/archon/neo-pipeline",
+    "destination": "archon/neo-pipeline",
+    "tag": "1.0.0",
+    "stig": {
+        "enabled": true,
+        "filepath": "ssg-archon-gpos-ds.xml",
+        "profile": "xccdf_basic_profile_.check"
+    }
+}

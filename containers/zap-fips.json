@@ -1,0 +1,12 @@
+{
+    "name": "ZAP FIPS",
+    "description": "FIPS-compliant OWASP ZAP security testing proxy",
+    "image": "containers.archon.sh/zap/zap-fips",
+    "destination": "zap/zap-fips",
+    "tag": "2.16.1-r0",
+    "stig": {
+        "enabled": true,
+        "filepath": "ssg-archon-gpos-ds.xml",
+        "profile": "xccdf_basic_profile_.check"
+    }
+}

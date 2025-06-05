@@ -1,0 +1,12 @@
+{
+    "name": "Temporal Auto Setup FIPS",
+    "description": "FIPS-compliant Temporal automatic setup and configuration container",
+    "image": "containers.archon.sh/temporalio/auto-setup-fips",
+    "destination": "temporalio/auto-setup-fips",
+    "tag": "1.27.0-r0",
+    "stig": {
+        "enabled": true,
+        "filepath": "ssg-archon-gpos-ds.xml",
+        "profile": "xccdf_basic_profile_.check"
+    }
+}

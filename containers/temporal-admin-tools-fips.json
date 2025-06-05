@@ -1,0 +1,12 @@
+{
+    "name": "Temporal Admin Tools FIPS",
+    "description": "FIPS-compliant Temporal administrative tools and utilities",
+    "image": "containers.archon.sh/temporalio/admin-tools-fips",
+    "destination": "temporalio/admin-tools-fips",
+    "tag": "1.27.0-r0",
+    "stig": {
+        "enabled": true,
+        "filepath": "ssg-archon-gpos-ds.xml",
+        "profile": "xccdf_basic_profile_.check"
+    }
+}

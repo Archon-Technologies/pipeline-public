@@ -1,0 +1,12 @@
+{
+    "name": "Cert-Manager Controller FIPS",
+    "description": "FIPS-compliant cert-manager controller for automated certificate management",
+    "image": "containers.archon.sh/cert-manager/controller-fips",
+    "destination": "cert-manager/controller-fips",
+    "tag": "1.14.4",
+    "stig": {
+        "enabled": true,
+        "filepath": "ssg-archon-gpos-ds.xml",
+        "profile": "xccdf_basic_profile_.check"
+    }
+}
