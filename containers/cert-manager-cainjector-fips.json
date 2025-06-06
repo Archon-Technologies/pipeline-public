@@ -3,7 +3,7 @@
     "description": "FIPS-compliant cert-manager CA injector for certificate authority management",
     "image": "containers.archon.sh/cert-manager/cainjector-fips",
     "destination": "cert-manager/cainjector-fips",
-    "tag": "1.14.4",
+    "tag": "1.17.2",
     "stig": {
         "enabled": true,
         "filepath": "ssg-archon-gpos-ds.xml",

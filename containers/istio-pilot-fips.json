@@ -1,0 +1,12 @@
+{
+    "name": "Istio Pilot FIPS",
+    "description": "FIPS-compliant Istio Pilot for service mesh control plane",
+    "image": "containers.archon.sh/istio/pilot-fips",
+    "destination": "istio/pilot-fips",
+    "tag": "1.26.1",
+    "stig": {
+        "enabled": true,
+        "filepath": "ssg-archon-gpos-ds.xml",
+        "profile": "xccdf_basic_profile_.check"
+    }
+}

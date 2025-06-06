@@ -3,7 +3,7 @@
     "description": "FIPS-compliant Jenkins server for secure automation and CI/CD",
     "image": "containers.archon.sh/archon/jenkins-fips",
     "destination": "archon/jenkins-fips",
-    "tag": "2.492.3",
+    "tag": "2.504.2",
     "stig": {
         "enabled": true,
         "filepath": "ssg-archon-gpos-ds.xml",

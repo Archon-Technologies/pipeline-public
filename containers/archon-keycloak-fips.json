@@ -3,7 +3,7 @@
     "description": "FIPS-compliant Keycloak identity and access management server",
     "image": "containers.archon.sh/archon/keycloak-fips",
     "destination": "archon/keycloak-fips",
-    "tag": "26.2.0",
+    "tag": "26.2.5",
     "stig": {
         "enabled": true,
         "filepath": "ssg-archon-gpos-ds.xml",

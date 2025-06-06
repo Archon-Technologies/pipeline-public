@@ -3,7 +3,7 @@
     "description": "FIPS-compliant Temporal workflow engine server",
     "image": "containers.archon.sh/temporalio/server-fips",
     "destination": "temporalio/server-fips",
-    "tag": "1.27.0-r0",
+    "tag": "1.27.2-r0",
     "stig": {
         "enabled": true,
         "filepath": "ssg-archon-gpos-ds.xml",
