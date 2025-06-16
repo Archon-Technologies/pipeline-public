@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: govdash-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: govdash-web
+  template:
+    metadata:
+      labels:
+        app: govdash-web
+    spec:
+      containers:
+        - name: main
+          image: {{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.version }}
+          ports:
+            - containerPort: 80

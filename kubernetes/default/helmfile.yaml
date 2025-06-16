@@ -3,15 +3,57 @@ environments:
   default:
     values:
       - "{{ requiredEnv "VALUES_FILE" }}"
+      - postgresDatabaseSelections:
+          temporal: swag
+      - pyToolsImage: "{{ .Values.registry }}/archon/py-tools:1.0.0"
 ---
 bases:
   - ../common/helmfile.yaml
 # Your app
 releases:
-  - name: my-app
-    chart: "../../helmcharts/my-app"
+  - name: govdash-web
+    chart: "../../helmcharts/govdash-web"
     namespace: default
     # These values are supplied by the injected VALUES_FILE.
     values:
       - registry: {{ .Values.registry }}
         fqdn: {{ .Values.fqdn }}
+  - name: temporal
+    chart: "../../helmcharts/temporal"
+    namespace: default
+    values:
+      - azureIdentity:
+          clientId: {{ .Values.postgres[.Values.postgresDatabaseSelections.temporal].clientID | quote }}
+          name: {{ .Values.postgres[.Values.postgresDatabaseSelections.temporal].identityName | quote }}
+        archon:
+          pytoolsImage: {{ .Values.pyToolsImage }}
+      - serviceAccount: 
+          create: true
+          name: {{ .Values.postgres[.Values.postgresDatabaseSelections.temporal].identityName | quote }}
+        server:
+          config:
+            persistence:
+              default:
+                driver: sql
+                sql:
+                  driver: postgres
+                  host: {{ .Values.postgres[.Values.postgresDatabaseSelections.temporal].fqdn | quote }}
+                  port: 5432
+                  database: {{ .Values.postgres[.Values.postgresDatabaseSelections.temporal].databaseName | quote }}
+                  user: {{ .Values.postgres[.Values.postgresDatabaseSelections.temporal].identityName | quote }}
+              visibility:
+                driver: sql
+          replicaCount: 2
+          image:
+            repository: {{ .Values.registry }}/temporalio/server-fips
+            tag: 1.27.2-r0
+        admintools:
+          enabled: false
+        web:
+          enabled: false
+        elasticsearch:
+          enabled: false
+        cassandra:
+          enabled: false
+        grafana:
+          enabled: false

@@ -1,0 +1,5 @@
+fqdn: "my-app.example.com"
+image:
+  registry: "internal.example.com"
+  repository: "govdash-web"
+  version: "1.0"

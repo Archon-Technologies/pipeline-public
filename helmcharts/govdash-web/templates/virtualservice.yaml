@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: govdash-web
+spec:
+  hosts:
+    - "{{ .Values.fqdn }}"
+  gateways:
+    # Traffic originates from here by default
+    - istio-system/ingress-from-internet
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: govdash-web.default.svc.cluster.local
+            port:
+              number: 80

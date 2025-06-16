@@ -1,0 +1,249 @@
+{{- if $.Values.server.enabled }}
+{{- range $rawService := (list "frontend" "internalFrontend" "history" "matching" "worker") }}
+{{- $service := include "serviceName" (list $rawService) }}
+{{- $serviceValues := index $.Values.server $rawService }}
+{{- if or (not (hasKey $serviceValues "enabled")) $serviceValues.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "temporal.componentname" (list $ $service) }}
+  annotations:
+    {{- include "temporal.resourceAnnotations" (list $ $service "deployment") | nindent 4 }}
+  labels:
+    {{- include "temporal.resourceLabels" (list $ $service "deployment") | nindent 4 }}
+spec:
+  replicas: {{ default $.Values.server.replicaCount $serviceValues.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "temporal.name" $ }}
+      app.kubernetes.io/instance: {{ $.Release.Name }}
+      app.kubernetes.io/component: {{ $service }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/server-configmap.yaml") $ | sha256sum }}
+        {{- if (dig "metrics" "annotations" "enabled" $.Values.server.metrics.annotations.enabled $serviceValues) }}
+        prometheus.io/job: {{ $.Chart.Name }}-{{ $service }}
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9090'
+        {{- end }}
+        {{- include "temporal.resourceAnnotations" (list $ $service "pod") | nindent 8 }}
+      labels:
+        {{- include "temporal.resourceLabels" (list $ $service "pod") | nindent 8 }}
+    spec:
+      {{ include "temporal.serviceAccount" $ }}
+      {{- if semverCompare ">=1.13.0" $.Chart.AppVersion}}
+      {{- with $.Values.server.securityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- end }}
+      initContainers:
+        - name: mount-az-secrets
+          image: {{ .Values.pyToolsImage }}
+          volumeMounts:
+            - name: secret-volume
+              mountPath: /secrets
+          command:
+            - python3
+          args: 
+            - -c
+            - |
+                import os
+                from azure.identity import ManagedIdentityCredential
+                
+                managed_identity_client_id = {{ .Values.azureIdentity.clientId | quote}}
+                cred = ManagedIdentityCredential(client_id=managed_identity_client_id)
+                access_token = cred.get_token("https://ossrdbms-aad.database.windows.net/.default").token
+                with open('/secrets/postgresql-access-token', 'w') as f:
+                    f.write(access_token)
+                print("Access token written to /secrets/postgresql-access-token")
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+      {{- if or (or $.Values.server.additionalInitContainers $.Values.cassandra.enabled) (or $.Values.elasticsearch.enabled $.Values.elasticsearch.external)}}
+        {{- with $.Values.server.additionalInitContainers }}
+          {{- toYaml . | nindent 8}}
+        {{- end }}
+        {{- if $.Values.cassandra.enabled }}
+        - name: check-cassandra
+          image: "{{ $.Values.cassandra.image.repo }}:{{ $.Values.cassandra.image.tag }}"
+          imagePullPolicy: {{ $.Values.cassandra.image.pullPolicy }}
+          command: ['sh', '-c', 'until cqlsh {{ include "cassandra.host" $ }} {{ $.Values.cassandra.config.ports.cql }} -e "SHOW VERSION"; do echo waiting for cassandra to start; sleep 1; done;']
+          {{- with $serviceValues.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        - name: check-cassandra-temporal-schema
+          image: "{{ $.Values.cassandra.image.repo }}:{{ $.Values.cassandra.image.tag }}"
+          imagePullPolicy: {{ $.Values.cassandra.image.pullPolicy }}
+          command: ['sh', '-c', 'until cqlsh {{ include "cassandra.host" $ }} {{ $.Values.cassandra.config.ports.cql }} -e "SELECT keyspace_name FROM system_schema.keyspaces" | grep {{ $.Values.server.config.persistence.default.cassandra.keyspace }}$; do echo waiting for default keyspace to become ready; sleep 1; done;']
+          {{- with $serviceValues.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- end }}
+        {{- if or $.Values.elasticsearch.enabled $.Values.elasticsearch.external }}
+        - name: check-elasticsearch-index
+          image: "{{ $.Values.admintools.image.repository }}:{{ $.Values.admintools.image.tag }}"
+          imagePullPolicy: {{ $.Values.admintools.image.pullPolicy }}
+          command: ['sh', '-c', 'until curl --silent --fail --user "$ES_USER:$ES_PWD" $ES_SCHEME://$ES_HOST:$ES_PORT/$ES_VISIBILITY_INDEX 2>&1 > /dev/null; do echo waiting for elasticsearch index to become ready; sleep 1; done;']
+          env:
+            {{- include "temporal.admintools-env" (list $ "visibility") | nindent 12 }}
+          {{- with $serviceValues.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- end }}
+      {{- end }}
+      containers:
+        - name: refresh-az-token
+          image: {{ .Values.archon.pytoolsImage }}
+          command:
+            - python3
+          volumeMounts:
+            - name: secret-volume
+              mountPath: /secrets
+          env:
+            - name: PYTHONUNBUFFERED
+              value: "1"
+          args:
+            - -c
+            - |
+                print("Starting token refresh loop")
+                import time
+                from azure.identity import ManagedIdentityCredential
+
+                managed_identity_client_id = {{ .Values.azureIdentity.clientId | quote }}
+                cred = ManagedIdentityCredential(client_id=managed_identity_client_id)
+                while True:
+                    token = cred.get_token("https://ossrdbms-aad.database.windows.net/.default").token
+                    with open('/secrets/postgresql-access-token', 'w') as f:
+                        f.write(token)
+                    print("Token refreshed")
+                    time.sleep(1800)  # refresh every 30 minutes
+                
+                print("WARNING: Token refresh loop ended unexpectedly!")
+        - name: {{ $.Chart.Name }}-{{ $service }}
+          image: "{{ $.Values.server.image.repository }}:{{ $.Values.server.image.tag }}"
+          imagePullPolicy: {{ $.Values.server.image.pullPolicy }}
+          command:
+            - sh
+          args:
+            - -c
+            - |
+              export TEMPORAL_STORE_PASSWORD=$(cat /secrets/postgresql-access-token)
+              export TEMPORAL_VISIBILITY_STORE_PASSWORD=$(cat /secrets/postgresql-access-token)
+              exec /etc/temporal/entrypoint.sh
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: SERVICES
+              value: {{ $service }}
+          {{- if and (hasKey $.Values.server "internalFrontend") $.Values.server.internalFrontend.enabled }}
+            - name: USE_INTERNAL_FRONTEND
+              value: "1"
+          {{- end }}
+          {{- if $.Values.server.versionCheckDisabled }}
+            - name: TEMPORAL_VERSION_CHECK_DISABLED
+              value: "1"
+          {{- end }}
+          {{- if or $.Values.server.additionalEnv $serviceValues.additionalEnv }}
+          {{- toYaml (default $.Values.server.additionalEnv $serviceValues.additionalEnv) | nindent 12 }}
+          {{- end }}
+          {{- if $.Values.server.additionalEnvSecretName }}
+          envFrom:
+            - secretRef:
+                name: {{ $.Values.server.additionalEnvSecretName }}
+          {{- end }}
+          # For Istio service mesh - make sure ports are defined here and in the headless service, see:
+          # https://istio.io/latest/docs/ops/configuration/traffic-management/traffic-routing/#headless-services
+          ports:
+          {{- if ne $service "worker" }}
+            - name: rpc
+              containerPort: {{ $serviceValues.service.port }}
+              protocol: TCP
+          {{- end }}
+            - name: membership
+              containerPort: {{ $serviceValues.service.membershipPort }}
+              protocol: TCP
+          {{- if or (eq $service "frontend") (eq $service "internal-frontend") }}
+            - name: http
+              containerPort: {{ $serviceValues.service.httpPort }}
+              protocol: TCP
+          {{- end }}
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+          {{- if ne $service "worker" }}
+          livenessProbe:
+             initialDelaySeconds: 150
+             tcpSocket:
+               port: rpc
+          {{- end }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/temporal/config/config_template.yaml
+              subPath: config_template.yaml
+            - name: dynamic-config
+              mountPath: /etc/temporal/dynamic_config
+            {{- if $.Values.server.additionalVolumeMounts }}
+            {{- toYaml $.Values.server.additionalVolumeMounts | nindent 12}}
+            {{- end }}
+          resources:
+            {{- toYaml (default $.Values.server.resources $serviceValues.resources) | nindent 12 }}
+          {{- with $serviceValues.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with $.Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: secret-volume
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: "{{ include "temporal.fullname" $ }}-config"
+        - name: dynamic-config
+          configMap:
+            name: "{{ include "temporal.fullname" $ }}-dynamic-config"
+            items:
+            - key: dynamic_config.yaml
+              path: dynamic_config.yaml
+        {{- if $.Values.server.additionalVolumes }}
+        {{- toYaml $.Values.server.additionalVolumes | nindent 8}}
+        {{- end }}
+      {{- with (default $.Values.server.nodeSelector $serviceValues.nodeSelector) }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with (default $.Values.server.affinity $serviceValues.affinity) }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with (default $.Values.server.tolerations $serviceValues.tolerations) }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with $serviceValues.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+---
+{{- end }}
+{{- end }}
+{{- end }}
