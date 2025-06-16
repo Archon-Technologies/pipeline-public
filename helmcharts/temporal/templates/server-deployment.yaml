@@ -29,6 +29,7 @@ spec:
         {{- end }}
         {{- include "temporal.resourceAnnotations" (list $ $service "pod") | nindent 8 }}
       labels:
+        azure.workload.identity/use: "true"
         {{- include "temporal.resourceLabels" (list $ $service "pod") | nindent 8 }}
     spec:
       {{ include "temporal.serviceAccount" $ }}
