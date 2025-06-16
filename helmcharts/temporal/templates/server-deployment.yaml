@@ -108,33 +108,6 @@ spec:
         {{- end }}
       {{- end }}
       containers:
-        - name: refresh-az-token
-          image: {{ $.Values.archon.pytoolsImage }}
-          command:
-            - python3
-          volumeMounts:
-            - name: secret-volume
-              mountPath: /secrets
-          env:
-            - name: PYTHONUNBUFFERED
-              value: "1"
-          args:
-            - -c
-            - |
-                print("Starting token refresh loop")
-                import time
-                from azure.identity import ManagedIdentityCredential
-
-                managed_identity_client_id = {{ $.Values.azureIdentity.clientId | quote }}
-                cred = ManagedIdentityCredential(client_id=managed_identity_client_id)
-                while True:
-                    token = cred.get_token("https://ossrdbms-aad.database.windows.net/.default").token
-                    with open('/secrets/postgresql-access-token', 'w') as f:
-                        f.write(token)
-                    print("Token refreshed")
-                    time.sleep(1800)  # refresh every 30 minutes
-                
-                print("WARNING: Token refresh loop ended unexpectedly!")
         - name: {{ $.Chart.Name }}-{{ $service }}
           image: "{{ $.Values.server.image.repository }}:{{ $.Values.server.image.tag }}"
           imagePullPolicy: {{ $.Values.server.image.pullPolicy }}
@@ -209,6 +182,33 @@ spec:
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+        - name: refresh-az-token
+          image: {{ $.Values.archon.pytoolsImage }}
+          command:
+            - python3
+          volumeMounts:
+            - name: secret-volume
+              mountPath: /secrets
+          env:
+            - name: PYTHONUNBUFFERED
+              value: "1"
+          args:
+            - -c
+            - |
+                print("Starting token refresh loop")
+                import time
+                from azure.identity import ManagedIdentityCredential
+
+                managed_identity_client_id = {{ $.Values.azureIdentity.clientId | quote }}
+                cred = ManagedIdentityCredential(client_id=managed_identity_client_id)
+                while True:
+                    token = cred.get_token("https://ossrdbms-aad.database.windows.net/.default").token
+                    with open('/secrets/postgresql-access-token', 'w') as f:
+                        f.write(token)
+                    print("Token refreshed")
+                    time.sleep(1800)  # refresh every 30 minutes
+                
+                print("WARNING: Token refresh loop ended unexpectedly!")
       {{- with $.Values.imagePullSecrets }}
       imagePullSecrets:
       {{- toYaml . | nindent 8 }}
