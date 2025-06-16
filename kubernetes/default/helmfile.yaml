@@ -23,13 +23,13 @@ releases:
     namespace: default
     values:
       - azureIdentity:
-          clientId: {{ .Values.postgres[.Values.postgresDatabaseSelections.temporal].clientID | quote }}
-          name: {{ .Values.postgres[.Values.postgresDatabaseSelections.temporal].identityName | quote }}
+          clientId: {{ .Values.postgres.swag.clientID | quote }}
+          name: {{ .Values.postgres.swag.identityName | quote }}
         archon:
           pytoolsImage: {{ .Values.pyToolsImage }}
       - serviceAccount: 
           create: true
-          name: {{ .Values.postgres[.Values.postgresDatabaseSelections.temporal].identityName | quote }}
+          name: {{ .Values.postgres.swag.identityName | quote }}
         server:
           config:
             persistence:
@@ -37,10 +37,10 @@ releases:
                 driver: sql
                 sql:
                   driver: postgres
-                  host: {{ .Values.postgres[.Values.postgresDatabaseSelections.temporal].fqdn | quote }}
+                  host: {{ .Values.postgres.swag.fqdn | quote }}
                   port: 5432
-                  database: {{ .Values.postgres[.Values.postgresDatabaseSelections.temporal].databaseName | quote }}
-                  user: {{ .Values.postgres[.Values.postgresDatabaseSelections.temporal].identityName | quote }}
+                  database: {{ .Values.postgres.swag.databaseName | quote }}
+                  user: {{ .Values.postgres.swag.identityName | quote }}
               visibility:
                 driver: sql
           replicaCount: 2
