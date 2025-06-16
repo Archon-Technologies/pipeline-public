@@ -40,7 +40,7 @@ spec:
       {{- end }}
       initContainers:
         - name: mount-az-secrets
-          image: {{ .Values.pyToolsImage }}
+          image: {{ $.Values.archon.pytoolsImage }}
           volumeMounts:
             - name: secret-volume
               mountPath: /secrets
@@ -52,7 +52,7 @@ spec:
                 import os
                 from azure.identity import ManagedIdentityCredential
                 
-                managed_identity_client_id = {{ .Values.azureIdentity.clientId | quote}}
+                managed_identity_client_id = {{ $.Values.azureIdentity.clientId | quote}}
                 cred = ManagedIdentityCredential(client_id=managed_identity_client_id)
                 access_token = cred.get_token("https://ossrdbms-aad.database.windows.net/.default").token
                 with open('/secrets/postgresql-access-token', 'w') as f:
@@ -108,7 +108,7 @@ spec:
       {{- end }}
       containers:
         - name: refresh-az-token
-          image: {{ .Values.archon.pytoolsImage }}
+          image: {{ $.Values.archon.pytoolsImage }}
           command:
             - python3
           volumeMounts:
@@ -124,7 +124,7 @@ spec:
                 import time
                 from azure.identity import ManagedIdentityCredential
 
-                managed_identity_client_id = {{ .Values.azureIdentity.clientId | quote }}
+                managed_identity_client_id = {{ $.Values.azureIdentity.clientId | quote }}
                 cred = ManagedIdentityCredential(client_id=managed_identity_client_id)
                 while True:
                     token = cred.get_token("https://ossrdbms-aad.database.windows.net/.default").token
