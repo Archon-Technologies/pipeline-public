@@ -1,0 +1,35 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-inbound-and-cross-traffic
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+        "app.kubernetes.io/managed-by": "{{ .Release.Service }}"
+        "app.kubernetes.io/instance": "{{ .Release.Name }}"
+  action: ALLOW
+  rules:
+    # - from:
+    #     - source:
+    #         principals:
+    #           - "cluster.local/ns/istio-system/sa/ingress-from-internet" # Allow traffic from the gateway
+    #   to:
+    #     - operation:
+    #         ports: ["8080"] # Allow inbound traffic
+    - from:
+        - source:
+            principals:
+              - "cluster.local/ns/{{ .Release.Namespace }}/sa/{{ .Values.serviceAccount.name }}"
+      to:
+        - operation:
+            # All internal temporal ports 
+            ports:
+              - "6933"
+              - "6934"
+              - "6935"
+              - "6939"
+              - "7233"
+              - "7234"
+              - "7235"
+              - "7239"

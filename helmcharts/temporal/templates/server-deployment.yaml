@@ -42,23 +42,17 @@ spec:
       initContainers:
         - name: mount-az-secrets
           image: {{ $.Values.archon.pytoolsImage }}
+          imagePullPolicy: Always
           volumeMounts:
             - name: secret-volume
-              mountPath: /secrets
+              mountPath: /secrets/azure-token
+          env:
+            - name: GET_POSTGRES_TOKEN
+              value: "true"
+            - name: AZURE_CLIENT_ID
+              value: {{ $.Values.azureIdentity.clientId | quote }}
           command:
-            - python3
-          args: 
-            - -c
-            - |
-                import os
-                from azure.identity import ManagedIdentityCredential
-                
-                managed_identity_client_id = {{ $.Values.azureIdentity.clientId | quote}}
-                cred = ManagedIdentityCredential(client_id=managed_identity_client_id)
-                access_token = cred.get_token("https://ossrdbms-aad.database.windows.net/.default").token
-                with open('/secrets/postgresql-access-token', 'w') as f:
-                    f.write(access_token)
-                print("Access token written to /secrets/postgresql-access-token")
+            - getAzToken
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -116,8 +110,8 @@ spec:
           args:
             - -c
             - |
-              export TEMPORAL_STORE_PASSWORD=$(cat /secrets/postgresql-access-token)
-              export TEMPORAL_VISIBILITY_STORE_PASSWORD=$(cat /secrets/postgresql-access-token)
+              export TEMPORAL_STORE_PASSWORD=$(cat /secrets/azure-token-postgres)
+              export TEMPORAL_VISIBILITY_STORE_PASSWORD=$(cat /secrets/azure-token-postgres)
               exec /etc/temporal/entrypoint.sh
           env:
             - name: POD_IP
@@ -173,6 +167,9 @@ spec:
               subPath: config_template.yaml
             - name: dynamic-config
               mountPath: /etc/temporal/dynamic_config
+            - name: secret-volume
+              readOnly: true
+              mountPath: /secrets
             {{- if $.Values.server.additionalVolumeMounts }}
             {{- toYaml $.Values.server.additionalVolumeMounts | nindent 12}}
             {{- end }}
@@ -184,31 +181,19 @@ spec:
           {{- end }}
         - name: refresh-az-token
           image: {{ $.Values.archon.pytoolsImage }}
+          imagePullPolicy: Always
           command:
-            - python3
+            - getAzToken
           volumeMounts:
             - name: secret-volume
-              mountPath: /secrets
+              mountPath: /secrets/azure-token
           env:
-            - name: PYTHONUNBUFFERED
-              value: "1"
-          args:
-            - -c
-            - |
-                print("Starting token refresh loop")
-                import time
-                from azure.identity import ManagedIdentityCredential
-
-                managed_identity_client_id = {{ $.Values.azureIdentity.clientId | quote }}
-                cred = ManagedIdentityCredential(client_id=managed_identity_client_id)
-                while True:
-                    token = cred.get_token("https://ossrdbms-aad.database.windows.net/.default").token
-                    with open('/secrets/postgresql-access-token', 'w') as f:
-                        f.write(token)
-                    print("Token refreshed")
-                    time.sleep(1800)  # refresh every 30 minutes
-                
-                print("WARNING: Token refresh loop ended unexpectedly!")
+            - name: GET_POSTGRES_TOKEN
+              value: "true"
+            - name: AZURE_CLIENT_ID
+              value: {{ $.Values.azureIdentity.clientId | quote }}
+            - name: KEEP_REFRESHED
+              value: "true"
       {{- with $.Values.imagePullSecrets }}
       imagePullSecrets:
       {{- toYaml . | nindent 8 }}

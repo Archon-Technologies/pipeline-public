@@ -1,0 +1,12 @@
+{
+    "name": "Temporal UI FIPS",
+    "description": "Web UI for FIPS-compliant Temporal workflow engine server",
+    "image": "containers.archon.sh/temporalio/ui-fips",
+    "destination": "temporalio/ui-fips",
+    "tag": "1.27.2-r0",
+    "stig": {
+        "enabled": true,
+        "filepath": "ssg-archon-gpos-ds.xml",
+        "profile": "xccdf_basic_profile_.check"
+    }
+}

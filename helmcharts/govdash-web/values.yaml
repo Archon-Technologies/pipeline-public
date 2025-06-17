@@ -3,3 +3,11 @@ image:
   registry: "internal.example.com"
   repository: "govdash-web"
   version: "1.0"
+#postgres:
+#  fqdn: "postgres.example.com"
+#  clientID: "your-client-id"
+#  databaseName: "govdash"
+archon:
+  pytoolsImage: "containers.archon.sh/archon/py-tools:1.0.0"
+serviceAccount:
+  name: "govdash-web-identity" # this gets used to connect to PGSQL and Redis

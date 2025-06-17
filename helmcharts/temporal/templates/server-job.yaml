@@ -12,6 +12,7 @@ spec:
     metadata:
       name: {{ include "temporal.componentname" (list $ (printf "schema-%d" .Release.Revision | replace "." "-")) }}
       labels:
+        azure.workload.identity/use: "true"
         {{- include "temporal.resourceLabels" (list $ "database" "") | nindent 8 }}
         {{- with $.Values.schema.podLabels }}
           {{- toYaml . | nindent 8 }}
@@ -24,6 +25,32 @@ spec:
       {{ include "temporal.serviceAccount" $ }}
       restartPolicy: OnFailure
       initContainers:
+        - name: mount-az-secrets
+          image: {{ $.Values.archon.pytoolsImage }}
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: secret-volume
+              mountPath: /secrets/azure-token
+          env:
+            - name: AZURE_CLIENT_ID
+              value: {{ $.Values.azureIdentity.clientId | quote }}
+            - name: GET_POSTGRES_TOKEN
+              value: "true"
+          command:
+            - getAzToken
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1000
+            runAsNonRoot: true
+            runAsUser: 1000
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
         {{- with $.Values.admintools.additionalInitContainers }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -60,12 +87,18 @@ spec:
               {{- if eq $driver "cassandra" }}
           command: ['temporal-cassandra-tool', 'create', '-k', '{{ $storeConfig.cassandra.keyspace }}', '--replication-factor', '{{ $storeConfig.cassandra.replicationFactor }}']
               {{- else if eq $driver "sql" }}
-          command: ['temporal-sql-tool', 'create-database']
-              {{- end }}
+          command: ['sh', '-c']
+          args:
+            - |
+              export SQL_PASSWORD=$(cat /secrets/azure-token-postgres)
+              temporal-sql-tool create-database
+            {{- end }}
           env:
               {{- include "temporal.admintools-env" (list $ $store) | nindent 12 }}
-              {{- with $.Values.admintools.additionalVolumeMounts }}
           volumeMounts:
+            - name: secret-volume
+              mountPath: /secrets
+              {{- with $.Values.admintools.additionalVolumeMounts }}
                 {{- toYaml . | nindent 12 }}
               {{- end }}
               {{- with $.Values.schema.resources }}
@@ -89,7 +122,11 @@ spec:
             {{- if eq $driver "cassandra" }}
           command: ['temporal-cassandra-tool', 'setup-schema', '-v', '0.0']
             {{- else if eq $driver "sql" }}
-          command: ['temporal-sql-tool', 'setup-schema', '-v', '0.0']
+          command: ['sh', '-c']
+          args:
+            - |
+              export SQL_PASSWORD=$(cat /secrets/azure-token-postgres)
+              temporal-sql-tool setup-schema -v 0.0
             {{- else if eq $driver "elasticsearch" }}
           command: ['sh', '-c']
           args:
@@ -99,8 +136,10 @@ spec:
             {{- end }}
           env:
             {{- include "temporal.admintools-env" (list $ $store) | nindent 12 }}
-            {{- with $.Values.admintools.additionalVolumeMounts }}
           volumeMounts:
+            - name: secret-volume
+              mountPath: /secrets
+            {{- with $.Values.admintools.additionalVolumeMounts }}
               {{- toYaml . | nindent 12 }}
             {{- end }}
             {{- with $.Values.schema.resources }}
@@ -129,13 +168,19 @@ spec:
                 {{- if eq $plugin "mysql8" }}
           command: ['temporal-sql-tool', 'update-schema', '--schema-dir', '/etc/temporal/schema/mysql/v8/{{ $schema }}/versioned']
                 {{- else if or (eq $plugin "postgres12") (eq $plugin "postgres12_pgx") }}
-          command: ['temporal-sql-tool', 'update-schema', '--schema-dir', '/etc/temporal/schema/postgresql/v12/{{ $schema }}/versioned']
-                {{- end }}
+          command: ['sh', '-c']
+          args:
+            - |
+               export SQL_PASSWORD=$(cat /secrets/azure-token-postgres) 
+               temporal-sql-tool update-schema --schema-dir /etc/temporal/schema/postgresql/v12/{{ $schema }}/versioned
               {{- end }}
+            {{- end }}
           env:
               {{- include "temporal.admintools-env" (list $ $store) | nindent 12 }}
-              {{- with $.Values.admintools.additionalVolumeMounts }}
           volumeMounts:
+            - name: secret-volume
+              mountPath: /secrets
+              {{- with $.Values.admintools.additionalVolumeMounts }}
                 {{- toYaml . | nindent 12 }}
               {{- end }}
               {{- with $.Values.schema.resources }}
@@ -168,8 +213,10 @@ spec:
               {{- with $.Values.admintools.additionalEnv }}
                 {{- toYaml . | nindent 12 }}
               {{- end }} 
-              {{- with $.Values.admintools.additionalVolumeMounts }}
           volumeMounts:
+            - name: secret-volume
+              mountPath: /secrets
+              {{- with $.Values.admintools.additionalVolumeMounts }}
                 {{- toYaml . | nindent 12 }}
               {{- end }}
               {{- with $.Values.schema.resources }}
@@ -211,8 +258,10 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with $.Values.admintools.additionalVolumes }}
       volumes:
+        - name: secret-volume
+          emptyDir: {}
+      {{- with $.Values.admintools.additionalVolumes }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
 {{- end -}}
